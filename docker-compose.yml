@@ -1,0 +1,57 @@
+services:
+  db:
+    container_name: mmarchonimoveis_staging_db
+    image: mariadb:11
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MARIADB_DATABASE: ${MYSQL_DATABASE}
+      MARIADB_USER: ${MYSQL_USER}
+      MARIADB_PASSWORD: ${MYSQL_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - staging_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - staging_internal
+
+  wordpress:
+    container_name: mmarchonimoveis_staging_wp
+    image: wordpress:latest
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_HOME', 'https://staging.mmarchonimoveis.com.br');
+        define('WP_SITEURL', 'https://staging.mmarchonimoveis.com.br');
+        define('FORCE_SSL_ADMIN', true);
+        define('WP_ENVIRONMENT_TYPE', 'staging');
+        if (!defined('DISALLOW_FILE_EDIT')) {
+            define('DISALLOW_FILE_EDIT', true);
+        }
+    volumes:
+      - ./app:/var/www/html
+    ports:
+      - "127.0.0.1:8090:80"
+    networks:
+      - staging_internal
+
+networks:
+  staging_internal:
+    driver: bridge
+
+volumes:
+  staging_db_data:

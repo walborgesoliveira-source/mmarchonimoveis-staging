@@ -1,0 +1,5 @@
+.env
+exports/
+*.sql
+*.zip
+*.tar.gz
