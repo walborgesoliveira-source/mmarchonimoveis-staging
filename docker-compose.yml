@@ -48,10 +48,13 @@ services:
       - "127.0.0.1:8090:80"
     networks:
       - staging_internal
+      - nginx-proxy-manager_default
 
 networks:
   staging_internal:
     driver: bridge
+  nginx-proxy-manager_default:
+    external: true
 
 volumes:
   staging_db_data:
