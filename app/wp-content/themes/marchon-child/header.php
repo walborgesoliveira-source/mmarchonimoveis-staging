@@ -15,9 +15,13 @@
 <header id="masthead" class="site-header">
     <div class="site-header-inner">
         <div class="site-branding">
-            <?php if (has_custom_logo()): ?>
-                <?php the_custom_logo(); ?>
-            <?php endif; ?>
+            <a href="<?php echo esc_url(home_url('/')); ?>" class="site-brand-mark" aria-label="<?php echo esc_attr(get_bloginfo('name')); ?>">
+                <img
+                    src="<?php echo esc_url(get_stylesheet_directory_uri() . '/assets/images/logommarchon3d.png'); ?>"
+                    alt="<?php echo esc_attr(get_bloginfo('name')); ?>"
+                    class="site-brand-mark-image"
+                >
+            </a>
 
             <div class="site-brand-copy">
                 <a href="<?php echo esc_url(home_url('/')); ?>" class="site-title">
@@ -38,6 +42,13 @@
                 'container'      => false,
                 'fallback_cb'    => false,
             ]); ?>
+
+            <a
+                href="<?php echo esc_url(is_user_logged_in() ? admin_url() : wp_login_url()); ?>"
+                class="header-login-btn"
+            >
+                <?php echo is_user_logged_in() ? 'Painel' : 'Login'; ?>
+            </a>
         </nav>
     </div>
 </header>

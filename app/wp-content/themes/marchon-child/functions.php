@@ -48,6 +48,247 @@ add_action('after_setup_theme', function() {
     ]);
 });
 
+// ── PAPÉIS E CAPACIDADES: IMÓVEIS ──────────────────────────────────────────
+function marchon_get_imoveis_capabilities(): array {
+    return [
+        'edit_post'              => 'edit_imovel',
+        'read_post'              => 'read_imovel',
+        'delete_post'            => 'delete_imovel',
+        'edit_posts'             => 'edit_imoveis',
+        'edit_others_posts'      => 'edit_others_imoveis',
+        'publish_posts'          => 'publish_imoveis',
+        'read_private_posts'     => 'read_private_imoveis',
+        'delete_posts'           => 'delete_imoveis',
+        'delete_private_posts'   => 'delete_private_imoveis',
+        'delete_published_posts' => 'delete_published_imoveis',
+        'delete_others_posts'    => 'delete_others_imoveis',
+        'edit_private_posts'     => 'edit_private_imoveis',
+        'edit_published_posts'   => 'edit_published_imoveis',
+        'create_posts'           => 'create_imoveis',
+    ];
+}
+
+add_filter('register_post_type_args', function(array $args, string $post_type): array {
+    if ($post_type !== 'imoveis') {
+        return $args;
+    }
+
+    $args['capability_type'] = ['imovel', 'imoveis'];
+    $args['map_meta_cap']    = true;
+    $args['capabilities']    = marchon_get_imoveis_capabilities();
+
+    return $args;
+}, 20, 2);
+
+add_action('init', function() {
+    $imoveis_caps = array_values(marchon_get_imoveis_capabilities());
+
+    $role = get_role('gestor_imoveis');
+    if (!$role) {
+        $role = add_role(
+            'gestor_imoveis',
+            'Gestor de Imoveis',
+            [
+                'read'         => true,
+                'upload_files' => true,
+            ]
+        );
+    }
+
+    if ($role instanceof WP_Role) {
+        $role->add_cap('read');
+        $role->add_cap('upload_files');
+        foreach ($imoveis_caps as $cap) {
+            $role->add_cap($cap);
+        }
+    }
+
+    $admin_role = get_role('administrator');
+    if ($admin_role instanceof WP_Role) {
+        foreach ($imoveis_caps as $cap) {
+            $admin_role->add_cap($cap);
+        }
+    }
+});
+
+add_action('init', function() {
+    $user = get_user_by('login', 'Marcos');
+    if (!$user instanceof WP_User) {
+        return;
+    }
+
+    if ($user->roles !== ['gestor_imoveis']) {
+        $user->set_role('gestor_imoveis');
+    }
+}, 30);
+
+add_action('admin_menu', function() {
+    if (!current_user_can('edit_imoveis') || current_user_can('administrator')) {
+        return;
+    }
+
+    add_menu_page(
+        'Imoveis',
+        'Imoveis',
+        'edit_imoveis',
+        'edit.php?post_type=imoveis',
+        '',
+        'dashicons-admin-home',
+        5
+    );
+
+    add_submenu_page(
+        'edit.php?post_type=imoveis',
+        'Todos os Imoveis',
+        'Todos os Imoveis',
+        'edit_imoveis',
+        'edit.php?post_type=imoveis'
+    );
+
+    add_submenu_page(
+        'edit.php?post_type=imoveis',
+        'Adicionar Imovel',
+        'Adicionar Imovel',
+        'create_imoveis',
+        'post-new.php?post_type=imoveis'
+    );
+
+    remove_menu_page('index.php');
+    remove_menu_page('edit.php');
+    remove_menu_page('upload.php');
+    remove_menu_page('edit.php?post_type=page');
+    remove_menu_page('edit-comments.php');
+    remove_menu_page('themes.php');
+    remove_menu_page('plugins.php');
+    remove_menu_page('users.php');
+    remove_menu_page('tools.php');
+    remove_menu_page('options-general.php');
+    remove_menu_page('contact-form-7');
+    remove_menu_page('edit.php?post_type=acf-post-type');
+    remove_menu_page('edit.php?post_type=acf-taxonomy');
+    remove_menu_page('cptui_main_menu');
+    remove_menu_page('sb-instagram-feed');
+    remove_menu_page('sbi-feed-builder');
+    remove_menu_page('mmarchon-instagram-sync');
+
+}, 999);
+
+add_action('admin_bar_menu', function(WP_Admin_Bar $wp_admin_bar) {
+    if (!current_user_can('edit_imoveis') || current_user_can('administrator')) {
+        return;
+    }
+
+    foreach ([
+        'comments',
+        'new-content',
+        'customize',
+        'edit-profile',
+        'updates',
+        'themes',
+        'plugins',
+        'site-name',
+    ] as $node) {
+        $wp_admin_bar->remove_node($node);
+    }
+}, 999);
+
+add_action('wp_dashboard_setup', function() {
+    if (!current_user_can('edit_imoveis') || current_user_can('administrator')) {
+        return;
+    }
+
+    remove_meta_box('dashboard_quick_press', 'dashboard', 'side');
+    remove_meta_box('dashboard_primary', 'dashboard', 'side');
+    remove_meta_box('dashboard_site_health', 'dashboard', 'normal');
+    remove_meta_box('dashboard_activity', 'dashboard', 'normal');
+    remove_meta_box('dashboard_right_now', 'dashboard', 'normal');
+    remove_meta_box('dashboard_recent_comments', 'dashboard', 'normal');
+    remove_meta_box('dashboard_incoming_links', 'dashboard', 'normal');
+    remove_meta_box('dashboard_plugins', 'dashboard', 'normal');
+});
+
+add_action('admin_init', function() {
+    if (!current_user_can('edit_imoveis') || current_user_can('administrator')) {
+        return;
+    }
+
+    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+    if (!$screen) {
+        return;
+    }
+
+    $allowed_screens = [
+        'edit-imoveis',
+        'imoveis',
+        'upload',
+    ];
+
+    if (in_array($screen->id, $allowed_screens, true)) {
+        return;
+    }
+
+    wp_safe_redirect(admin_url('post-new.php?post_type=imoveis'));
+    exit;
+});
+
+add_filter('login_redirect', function(string $redirect_to, string $requested_redirect_to, WP_User|WP_Error $user): string {
+    if (!$user instanceof WP_User) {
+        return $redirect_to;
+    }
+
+    if (in_array('administrator', $user->roles, true)) {
+        return $redirect_to;
+    }
+
+    if (in_array('gestor_imoveis', $user->roles, true)) {
+        return admin_url('post-new.php?post_type=imoveis');
+    }
+
+    return $redirect_to;
+}, 10, 3);
+
+add_action('login_enqueue_scripts', function() {
+    $logo_url = get_stylesheet_directory_uri() . '/assets/images/logo-iaguru2026.png';
+    ?>
+    <style>
+        body.login {
+            background: linear-gradient(180deg, #fdfcf8 0%, #f0e7d7 100%);
+        }
+
+        body.login div#login h1 a {
+            background-image: url('<?php echo esc_url($logo_url); ?>');
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            width: min(300px, 82vw);
+            height: 110px;
+            margin-bottom: 18px;
+        }
+    </style>
+    <?php
+});
+
+add_filter('login_headerurl', function(): string {
+    return 'https://www.iaguru.com.br/';
+});
+
+add_filter('login_headertext', function(): string {
+    return 'IA Guru';
+});
+
+function marchon_render_iaguru_favicon(): void {
+    $favicon_url = get_stylesheet_directory_uri() . '/assets/images/iaguru.png';
+    ?>
+    <link rel="icon" href="<?php echo esc_url($favicon_url); ?>" type="image/png" sizes="any">
+    <link rel="shortcut icon" href="<?php echo esc_url($favicon_url); ?>" type="image/png">
+    <link rel="apple-touch-icon" href="<?php echo esc_url($favicon_url); ?>">
+    <?php
+}
+
+add_action('wp_head', 'marchon_render_iaguru_favicon', 1);
+add_action('admin_head', 'marchon_render_iaguru_favicon', 1);
+add_action('login_head', 'marchon_render_iaguru_favicon', 1);
+
 // ── HELPERS DO TEMA ─────────────────────────────────────────────────────────
 function marchon_env(string $key, string $default = ''): string {
     $value = getenv($key);
@@ -90,6 +331,66 @@ function marchon_get_contact_form_shortcode() {
     }
 
     return sprintf('[contact-form-7 id="%d" title="%s"]', $forms[0]->ID, esc_attr($forms[0]->post_title));
+}
+
+function marchon_get_instagram_feed_shortcode(): string {
+    if (shortcode_exists('instagram-feed')) {
+        return '[instagram-feed]';
+    }
+
+    if (shortcode_exists('instagram_feed')) {
+        return '[instagram_feed limit="6" only_linked="1"]';
+    }
+
+    return '';
+}
+
+function marchon_render_instagram_feed(): string {
+    $shortcode = marchon_get_instagram_feed_shortcode();
+
+    if ($shortcode !== '') {
+        $output = (string) do_shortcode($shortcode);
+        if ($output !== '' && !str_contains($output, 'sbi_mod_error') && !str_contains($output, 'No feed found')) {
+            return $output;
+        }
+    }
+
+    return sprintf(
+        '<div class="marchon-instagram-fallback"><p>O feed do Instagram sera exibido aqui assim que a conta for conectada no painel.</p><a class="btn-verde" href="%s" target="_blank" rel="noopener noreferrer">Abrir Instagram</a></div>',
+        esc_url('https://www.instagram.com/mmimoveis__/')
+    );
+}
+
+function marchon_render_editorial_posts(int $limit = 3): string {
+    $query = new WP_Query([
+        'post_type'           => 'post',
+        'post_status'         => 'publish',
+        'posts_per_page'      => max(1, $limit),
+        'ignore_sticky_posts' => true,
+        'orderby'             => 'date',
+        'order'               => 'DESC',
+    ]);
+
+    if (!$query->have_posts()) {
+        return '';
+    }
+
+    ob_start();
+    ?>
+    <div class="marchon-editorial-grid">
+        <?php while ($query->have_posts()) : $query->the_post(); ?>
+            <article class="marchon-editorial-card">
+                <div class="marchon-editorial-meta"><?php echo esc_html(get_the_date('d.m.Y')); ?></div>
+                <h3 class="marchon-editorial-title"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
+                <p class="marchon-editorial-excerpt"><?php echo esc_html(wp_trim_words(get_the_excerpt() ?: wp_strip_all_tags(get_the_content()), 30)); ?></p>
+                <a class="marchon-editorial-link" href="<?php the_permalink(); ?>">Ler conteúdo completo</a>
+            </article>
+        <?php endwhile; ?>
+    </div>
+    <?php
+    wp_reset_postdata();
+
+    return (string) ob_get_clean();
 }
 
 // ── SMTP / EMAIL ────────────────────────────────────────────────────────────

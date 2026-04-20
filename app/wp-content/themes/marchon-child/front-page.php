@@ -5,9 +5,13 @@
  */
 get_header(); ?>
 
+<?php $marchon_instagram_shortcode = marchon_get_instagram_feed_shortcode(); ?>
+
 <?php echo do_shortcode('[banner_imoveis]'); ?>
 
 <?php echo do_shortcode('[marchon_stats]'); ?>
+
+<?php $marchon_editorial_posts = marchon_render_editorial_posts(3); ?>
 
 <!-- ÚLTIMOS IMÓVEIS -->
 <section class="marchon-imoveis">
@@ -23,13 +27,49 @@ get_header(); ?>
     </div>
 </section>
 
+<?php if ($marchon_editorial_posts !== '') : ?>
+<section class="marchon-editorial-home">
+    <div class="marchon-editorial-home-inner">
+        <div class="secao-label">Conteúdo</div>
+        <h2 class="secao-titulo">Atualizações, oportunidades e bastidores do <em>mercado local</em></h2>
+        <p class="marchon-editorial-intro">Os posts publicados no WordPress agora aparecem na primeira página. Isso resolve o conteúdo órfão e cria um fluxo simples para você manter novidades, campanhas e destaques.</p>
+        <?php echo $marchon_editorial_posts; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<?php if ($marchon_instagram_shortcode !== '') : ?>
+<section class="marchon-instagram-home">
+    <div class="marchon-instagram-home-inner">
+        <div class="marchon-instagram-home-hero">
+            <div class="marchon-instagram-home-copy">
+                <div class="secao-label">Instagram</div>
+                <h2 class="secao-titulo">Descubra imóveis que encantam à primeira vista e despertam <em>vontade de visitar</em></h2>
+                <p class="marchon-instagram-home-intro">No Instagram da MM Imóveis, cada publicação aproxima você de oportunidades especiais, mostrando detalhes, atmosfera e o estilo de vida que cada imóvel pode oferecer.</p>
+                <div class="marchon-instagram-home-points">
+                    <span>Oportunidades em destaque</span>
+                    <span>Ambientes que inspiram</span>
+                    <span>Contato rápido pelo WhatsApp</span>
+                </div>
+                <div class="marchon-instagram-home-actions">
+                    <a href="https://wa.me/5522998121056" target="_blank" rel="noopener noreferrer" class="btn-verde">Quero atendimento prioritário</a>
+                    <a href="https://www.instagram.com/mmimoveis__/" target="_blank" rel="noopener noreferrer" class="btn-outline">Ver vitrine no Instagram</a>
+                </div>
+            </div>
+        </div>
+        <div class="marchon-instagram-feed-shell">
+            <?php echo marchon_render_instagram_feed(); ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
+
 <!-- SOBRE O CORRETOR -->
 <section class="marchon-sobre" id="sobre">
     <div class="marchon-sobre-inner">
         <div class="sobre-foto">
             <?php
-            $logo = get_theme_mod('custom_logo');
-            $foto_corretor = $logo ? wp_get_attachment_image_url($logo, 'large') : 'https://static.wixstatic.com/media/e6dcda_3c60e4e247884b94ba96b8be69b76eb3~mv2.png/v1/crop/x_0,y_59,w_1080,h_789/fill/w_980,h_716,al_c,q_90/Marcos%20Marchon.png';
+            $foto_corretor = get_stylesheet_directory_uri() . '/assets/images/marcosmarchon2026.png';
             ?>
             <img src="<?php echo esc_url($foto_corretor); ?>" alt="Corretor Marcos Marchon">
             <div class="sobre-creci">

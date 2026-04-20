@@ -79,14 +79,18 @@ a:hover { color: var(--verde-claro); }
   min-width: 0;
 }
 
-.site-branding .custom-logo-link {
+.site-brand-mark {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   flex-shrink: 0;
 }
 
-.site-branding .custom-logo {
-  max-height: 58px;
+.site-brand-mark-image {
+  display: block;
+  width: 54px;
+  height: 54px;
+  object-fit: contain;
   width: auto;
 }
 
@@ -123,17 +127,25 @@ a:hover { color: var(--verde-claro); }
 
 .nav-primary {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.9rem;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .nav-primary .menu {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  flex: 1 1 auto;
   gap: 1.4rem;
   list-style: none;
   margin: 0;
   padding: 0;
+  min-width: 0;
 }
 
 .nav-primary .menu-item {
@@ -171,6 +183,33 @@ a:hover { color: var(--verde-claro); }
 .nav-primary .current-menu-item > a::after,
 .nav-primary .current_page_item > a::after {
   transform: scaleX(1);
+}
+
+.header-login-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin-left: 0;
+  padding: 0.62rem 0.95rem;
+  border: 1px solid rgba(45,80,22,0.18);
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(253,252,248,0.92), rgba(232,224,207,0.86));
+  box-shadow: 0 10px 24px rgba(45,80,22,0.08);
+  color: var(--verde) !important;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.header-login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(45,80,22,0.14);
+  border-color: rgba(45,80,22,0.3);
+  color: var(--verde-musgo) !important;
 }
 
 /* ── BANNER ROTATIVO ───────────────────────────────── */
@@ -412,6 +451,203 @@ a:hover { color: var(--verde-claro); }
 }
 .btn-verde:hover { background: var(--verde); color: #fff; }
 
+/* ── EDITORIAL HOME ──────────────────────────────── */
+.marchon-editorial-home {
+  background: var(--branco);
+  padding: 5rem 2.5rem;
+}
+.marchon-editorial-home-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.marchon-editorial-intro {
+  max-width: 780px;
+  margin: -1.5rem 0 2rem;
+  color: var(--cinza-suave);
+  line-height: 1.8;
+}
+.marchon-editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+.marchon-editorial-card {
+  padding: 1.75rem;
+  border-radius: 22px;
+  border: 1px solid rgba(53,95,70,.12);
+  background: linear-gradient(180deg, #fff 0%, #fbf8f1 100%);
+  box-shadow: 0 22px 45px rgba(31,59,43,.08);
+}
+.marchon-editorial-meta {
+  margin-bottom: .9rem;
+  color: var(--terra-claro);
+  font-size: .74rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.marchon-editorial-title {
+  margin: 0 0 1rem;
+  font-family: var(--font-title);
+  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  line-height: 1.15;
+}
+.marchon-editorial-title a {
+  color: var(--cinza-texto);
+}
+.marchon-editorial-title a:hover {
+  color: var(--verde);
+}
+.marchon-editorial-excerpt {
+  margin: 0 0 1.25rem;
+  color: var(--cinza-suave);
+  line-height: 1.8;
+  font-size: .95rem;
+}
+.marchon-editorial-link {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  color: var(--verde);
+  font-size: .78rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.marchon-editorial-link:hover {
+  color: var(--verde-musgo);
+}
+
+/* ── INSTAGRAM HOME ───────────────────────────────── */
+.marchon-instagram-home {
+  background:
+    radial-gradient(circle at top right, rgba(196,154,42,.22), transparent 26%),
+    linear-gradient(180deg, #f9f3e8 0%, #eee1ca 100%);
+  padding: 5rem 2.5rem;
+}
+.marchon-instagram-home-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.marchon-instagram-home-hero,
+.single-instagram-relacionado-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(260px, .9fr);
+  gap: 2rem;
+  align-items: end;
+  margin-bottom: 2rem;
+}
+.marchon-instagram-home-intro {
+  max-width: 760px;
+  margin: -1.5rem 0 2rem;
+  color: var(--cinza-suave);
+  line-height: 1.8;
+}
+.marchon-instagram-home-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin: -.5rem 0 1.5rem;
+}
+.marchon-instagram-home-points span {
+  display: inline-flex;
+  align-items: center;
+  padding: .7rem 1rem;
+  border-radius: 999px;
+  background: rgba(31,59,43,.08);
+  color: var(--cinza-texto);
+  font-size: .74rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.marchon-instagram-home-actions,
+.single-instagram-relacionado-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .9rem;
+}
+.marchon-instagram-feed-shell {
+  padding: 1.3rem;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.9) 0%, rgba(250,245,236,.92) 100%);
+  border: 1px solid rgba(53,95,70,.1);
+  box-shadow: 0 28px 70px rgba(31,59,43,.1);
+}
+.marchon-instagram-feed-shell #sb_instagram,
+.marchon-instagram-feed-shell .sbi,
+.marchon-instagram-feed-shell .sb_instagram_header {
+  background: transparent !important;
+}
+.marchon-instagram-feed-shell #sbi_images {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+  gap: 1rem !important;
+}
+.marchon-instagram-feed-shell #sbi_images .sbi_item,
+.marchon-instagram-feed-shell #sbi_images .sbi_photo_wrap {
+  width: 100% !important;
+}
+.marchon-instagram-feed-shell #sbi_images .sbi_photo {
+  border-radius: 20px !important;
+  overflow: hidden !important;
+  box-shadow: 0 18px 40px rgba(31,59,43,.14) !important;
+  transform: translateY(0);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.marchon-instagram-feed-shell #sbi_images .sbi_photo:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 26px 55px rgba(31,59,43,.2) !important;
+}
+.marchon-instagram-feed-shell .sbi_follow_btn a,
+.marchon-instagram-feed-shell .sbi_load_btn a,
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .9rem 1.4rem;
+  border-radius: 999px;
+  border: 1px solid var(--verde);
+  background: #fff;
+  color: var(--verde);
+  font-size: .8rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: 500;
+  transition: all .2s;
+}
+.marchon-instagram-feed-shell .sbi_follow_btn a:hover,
+.marchon-instagram-feed-shell .sbi_load_btn a:hover,
+.btn-outline:hover {
+  background: var(--verde);
+  color: #fff;
+}
+.btn-verde {
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--verde) 0%, var(--verde-musgo) 100%);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 14px 30px rgba(31,59,43,.16);
+}
+.btn-verde:hover {
+  background: linear-gradient(135deg, var(--verde-musgo) 0%, var(--verde) 100%);
+  color: #fff;
+  transform: translateY(-1px);
+}
+.marchon-instagram-fallback {
+  padding: 2rem;
+  border: 1px solid rgba(53,95,70,.14);
+  border-radius: 18px;
+  background: linear-gradient(180deg,#fff 0%,#fbf8f1 100%);
+  box-shadow: 0 20px 40px rgba(31,59,43,.08);
+}
+.marchon-instagram-fallback p {
+  margin: 0 0 1rem;
+  color: var(--cinza-suave);
+  line-height: 1.7;
+}
+
 /* ── SOBRE O CORRETOR ──────────────────────────────── */
 .marchon-sobre {
   background: var(--branco);
@@ -433,8 +669,22 @@ a:hover { color: var(--verde-claro); }
   padding: 1.5rem; border-radius: 2px;
   font-family: var(--font-title);
 }
-.sobre-creci strong { display: block; font-size: 1.8rem; line-height: 1; }
-.sobre-creci span { font-size: 0.75rem; letter-spacing: 0.1em; opacity: 0.8; }
+.sobre-creci strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.95rem;
+  line-height: 1;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.sobre-creci span {
+  display: block;
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
 .sobre-texto p { color: var(--cinza-suave); line-height: 1.8; margin-bottom: 1rem; font-size: 0.95rem; }
 .btn-wpp {
   display: inline-flex; align-items: center; gap: 0.5rem;
@@ -581,6 +831,17 @@ a:hover { color: var(--verde-claro); }
 }
 .single-rede:hover { background: var(--verde); border-color: var(--verde); color: #fff; }
 .single-rede svg { width: 14px; height: 14px; fill: currentColor; }
+
+.single-instagram-relacionado {
+  background:
+    radial-gradient(circle at top left, rgba(196,154,42,.16), transparent 24%),
+    linear-gradient(180deg, #f3ebdd 0%, #e7dbc6 100%);
+  padding: 4rem 2.5rem 5rem;
+}
+.single-instagram-relacionado-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
 /* ── GALERIA NATIVA WORDPRESS ──────────────────────── */
 .single-descricao .wp-block-gallery {
@@ -849,10 +1110,19 @@ a:hover { color: var(--verde-claro); }
   .nav-primary .menu-item:last-child { border-bottom: none; }
   .nav-primary .menu-item a { display: block; padding: 0.75rem 0; }
   .nav-primary .menu-item a::after { display: none; }
+  .header-login-btn {
+    width: 100%;
+    margin: 1rem 0 0;
+    padding: 0.95rem 1rem;
+  }
 
   .marchon-sobre-inner,
   .marchon-contato-inner,
   .single-imovel-grid { grid-template-columns: 1fr; gap: 2rem; }
+  .marchon-instagram-home-hero,
+  .single-instagram-relacionado-hero { grid-template-columns: 1fr; }
+  .marchon-instagram-home,
+  .single-instagram-relacionado { padding-left: 1.25rem; padding-right: 1.25rem; }
   .marchon-stats { grid-template-columns: 1fr; }
   .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); }
   .stat-item:last-child { border-bottom: none; }
@@ -866,7 +1136,7 @@ a:hover { color: var(--verde-claro); }
   .banner-titulo { font-size: 1.9rem; }
   .site-header-inner { padding: 1rem 1.25rem; position: relative; }
   .site-branding { gap: 0.75rem; }
-  .site-branding .custom-logo { max-height: 48px; }
+  .site-brand-mark-image { width: 44px; height: 44px; }
   .site-branding .site-title { font-size: 1rem; padding-left: 0.65rem; }
   .site-tagline { display: none; }
   .marchon-page-entry,
