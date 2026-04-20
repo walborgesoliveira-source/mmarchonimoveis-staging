@@ -1075,6 +1075,16 @@ a:hover { color: var(--verde-claro); }
   letter-spacing: 0.04em;
 }
 
+.marchon-site-footer-line a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
+.marchon-site-footer-line a:hover {
+  color: rgba(255,255,255,0.92);
+}
+
 /* ── NAV TOGGLE (mobile) ───────────────────────────── */
 .nav-toggle {
   display: none;
