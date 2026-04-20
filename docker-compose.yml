@@ -39,8 +39,13 @@ services:
         define('WP_SITEURL', 'https://staging.mmarchonimoveis.com.br');
         define('FORCE_SSL_ADMIN', true);
         define('WP_ENVIRONMENT_TYPE', 'staging');
+        define('AUTOMATIC_UPDATER_DISABLED', true);
+        define('WP_AUTO_UPDATE_CORE', false);
         if (!defined('DISALLOW_FILE_EDIT')) {
             define('DISALLOW_FILE_EDIT', true);
+        }
+        if (!defined('DISALLOW_FILE_MODS')) {
+            define('DISALLOW_FILE_MODS', true);
         }
     volumes:
       - ./app:/var/www/html

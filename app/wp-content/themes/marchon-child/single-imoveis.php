@@ -5,6 +5,8 @@
  */
 get_header();
 
+$marchon_instagram_shortcode = marchon_get_instagram_feed_shortcode();
+
 $id        = get_the_ID();
 $codigo    = get_field('codigo', $id);
 $tipo      = get_field('tipo', $id);
@@ -105,6 +107,27 @@ $wpp_msg = urlencode('Olá Marcos! Tenho interesse no imóvel *' . get_the_title
         <?php endif; ?>
     </div>
 </div>
+
+<?php if ($marchon_instagram_shortcode !== '') : ?>
+<section class="single-instagram-relacionado">
+    <div class="single-instagram-relacionado-inner">
+        <div class="single-instagram-relacionado-hero">
+            <div>
+                <div class="secao-label">Instagram</div>
+                <h2 class="secao-titulo">Veja mais detalhes, inspiração e motivos para se imaginar <em>neste imóvel</em></h2>
+                <p class="marchon-instagram-home-intro">No Instagram da MM Imóveis, este imóvel ganha ainda mais vida com novos ângulos, destaques visuais e publicações que ajudam você a sentir o potencial de cada espaço.</p>
+            </div>
+            <div class="single-instagram-relacionado-actions">
+                <a href="https://wa.me/5522998121056?text=<?php echo $wpp_msg; ?>" target="_blank" rel="noopener noreferrer" class="btn-verde">Agendar visita agora</a>
+                <a href="https://www.instagram.com/mmimoveis__/" target="_blank" rel="noopener noreferrer" class="btn-outline">Ver mais no Instagram</a>
+            </div>
+        </div>
+        <div class="marchon-instagram-feed-shell">
+            <?php echo marchon_render_instagram_feed(); ?>
+        </div>
+    </div>
+</section>
+<?php endif; ?>
 
 <!-- COMENTÁRIOS -->
 <?php if (comments_open()): ?>

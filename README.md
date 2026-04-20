@@ -1,6 +1,6 @@
 # mmarchonimoveis-staging
 
-Ambiente isolado de staging para o site `dev.mmarchonimoveis.com.br`.
+Ambiente isolado de staging do site `dev.mmarchonimoveis.com.br`, executado com Docker e preparado para testes antes de qualquer mudança em produção.
 
 ## Estrutura
 
@@ -9,22 +9,66 @@ Ambiente isolado de staging para o site `dev.mmarchonimoveis.com.br`.
 - `app/`: arquivos do WordPress
 - `scripts/`: scripts operacionais
 - `exports/`: dumps e backups locais
+- `imagens/`: imagens de apoio usadas nas customizações visuais do tema
+- `MD/`: documentação operacional complementar
 
-## Comandos
+## URLs
+
+- Local: `http://127.0.0.1:8090`
+- Staging público: `https://staging.mmarchonimoveis.com.br`
+- Login WordPress: `https://staging.mmarchonimoveis.com.br/wp-login.php`
+
+## Docker
 
 ```bash
 cd /root/mmarchonimoveis-staging
 docker compose up -d
 docker compose down
+docker compose ps
 ```
 
-## URL local
+## Git E GitHub
 
-- `http://127.0.0.1:8090`
+- Branch principal: `main`
+- Remote `origin`: `git@github.com:walborgesoliveira-source/mmarchonimoveis-staging.git`
+
+Comandos úteis:
+
+```bash
+cd /root/mmarchonimoveis-staging
+git status
+git add .
+git commit -m "Descreva a alteracao"
+git push origin main
+```
+
+## Deploy
+
+Script disponível em `scripts/deploy.sh`:
+
+```bash
+cd /root/mmarchonimoveis-staging
+./scripts/deploy.sh
+```
+
+Esse script executa:
+
+```bash
+git pull
+docker compose up -d
+```
+
+## Regras
+
+- Nunca editar produção diretamente
+- Sempre validar no staging antes de publicar
+- Não versionar `.env`, dumps ou backups
+- Não expor serviços do banco publicamente
 
 ## Fluxo
 
-1. Atualizar o staging.
-2. Testar as mudanças.
-3. Validar com o usuário.
-4. Só então aplicar em produção.
+1. Fazer alterações no staging.
+2. Testar o comportamento no site.
+3. Validar o resultado.
+4. Commitar e enviar para o GitHub.
+5. Só depois replicar em produção.

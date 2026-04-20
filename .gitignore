@@ -3,3 +3,5 @@ exports/
 *.sql
 *.zip
 *.tar.gz
+app/wp-content/uploads/mmarchon_logs/
+app/wp-content/uploads/sb-instagram-feed-images/
