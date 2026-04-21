@@ -1,17 +1,32 @@
 (() => {
-  const popup = document.querySelector("[data-search-popup]");
-  if (!popup || !window.marchonSearchPopup) {
+  if (!window.marchonSearchPopup) {
     return;
   }
 
+  const popup = document.querySelector("[data-search-popup]");
+  const inline = document.querySelector("[data-search-inline]");
   const openButtons = document.querySelectorAll("[data-search-popup-open]");
-  const closeButtons = popup.querySelectorAll("[data-search-popup-close]");
-  const form = popup.querySelector("[data-search-popup-form]");
-  const input = popup.querySelector("[data-search-popup-input]");
-  const results = popup.querySelector("[data-search-popup-results]");
-  const status = popup.querySelector("[data-search-popup-status]");
+  const closeButtons = popup?.querySelectorAll("[data-search-popup-close]") ?? [];
   const nav = document.getElementById("nav-primary");
   const navToggle = document.getElementById("nav-toggle");
+
+  const popupRefs = popup
+    ? {
+        form: popup.querySelector("[data-search-popup-form]"),
+        input: popup.querySelector("[data-search-popup-input]"),
+        results: popup.querySelector("[data-search-popup-results]"),
+        status: popup.querySelector("[data-search-popup-status]"),
+      }
+    : null;
+
+  const inlineRefs = inline
+    ? {
+        form: inline.querySelector("[data-search-inline-form]"),
+        input: inline.querySelector("[data-search-inline-input]"),
+        results: inline.querySelector("[data-search-inline-results]"),
+        status: inline.querySelector("[data-search-inline-status]"),
+      }
+    : null;
 
   let controller = null;
   let debounceTimer = null;
@@ -22,17 +37,28 @@
     return div.innerHTML;
   };
 
-  const renderEmptyState = (message) => {
-    results.innerHTML = `<div class="search-popup-empty">${escapeHtml(message)}</div>`;
+  const getMode = () => (popup && popupRefs ? "popup" : "inline");
+
+  const getRefs = () => (getMode() === "popup" ? popupRefs : inlineRefs);
+
+  const renderEmptyState = (refs, message) => {
+    if (!refs?.results) {
+      return;
+    }
+    refs.results.innerHTML = `<div class="search-popup-empty">${escapeHtml(message)}</div>`;
   };
 
-  const renderResults = (items) => {
-    if (!items.length) {
-      renderEmptyState(marchonSearchPopup.i18n.noResults);
+  const renderResults = (refs, items) => {
+    if (!refs?.results) {
       return;
     }
 
-    results.innerHTML = items
+    if (!items.length) {
+      renderEmptyState(refs, marchonSearchPopup.i18n.noResults);
+      return;
+    }
+
+    refs.results.innerHTML = items
       .map((item) => {
         const meta = [item.typeLabel, item.meta].filter(Boolean).join(" • ");
         return `
@@ -49,23 +75,48 @@
       .join("");
   };
 
-  const setLoading = (isLoading, message = "") => {
-    popup.classList.toggle("is-loading", isLoading);
-    status.textContent = message;
+  const setLoading = (refs, isLoading, message = "") => {
+    popup?.classList.toggle("is-loading", getMode() === "popup" && isLoading);
+    inline?.classList.toggle("is-loading", getMode() === "inline" && isLoading);
+    if (refs?.status) {
+      refs.status.textContent = message;
+    }
   };
 
-  const openPopup = () => {
+  const closeMobileNav = () => {
     nav?.classList.remove("aberto");
     navToggle?.classList.remove("aberto");
     navToggle?.setAttribute("aria-expanded", "false");
+  };
+
+  const openInline = () => {
+    if (!inline || !inlineRefs) {
+      return;
+    }
+    closeMobileNav();
+    inline.hidden = false;
+    inline.scrollIntoView({ behavior: "smooth", block: "start" });
+    window.setTimeout(() => inlineRefs.input?.focus(), 30);
+  };
+
+  const openPopup = () => {
+    if (!popup || !popupRefs) {
+      openInline();
+      return;
+    }
+
+    closeMobileNav();
     popup.hidden = false;
     popup.setAttribute("aria-hidden", "false");
     document.body.classList.add("search-popup-open");
     openButtons.forEach((button) => button.setAttribute("aria-expanded", "true"));
-    window.setTimeout(() => input?.focus(), 30);
+    window.setTimeout(() => popupRefs.input?.focus(), 30);
   };
 
   const closePopup = () => {
+    if (!popup) {
+      return;
+    }
     popup.hidden = true;
     popup.setAttribute("aria-hidden", "true");
     document.body.classList.remove("search-popup-open");
@@ -74,15 +125,15 @@
       controller.abort();
       controller = null;
     }
-    setLoading(false, "");
+    setLoading(popupRefs, false, "");
   };
 
-  const runSearch = async (term) => {
+  const runSearch = async (refs, term) => {
     const query = term.trim();
 
     if (query.length < 2) {
-      status.textContent = marchonSearchPopup.i18n.minimumChars;
-      renderEmptyState(marchonSearchPopup.i18n.minimumChars);
+      setLoading(refs, false, marchonSearchPopup.i18n.minimumChars);
+      renderEmptyState(refs, marchonSearchPopup.i18n.minimumChars);
       return;
     }
 
@@ -91,7 +142,7 @@
     }
 
     controller = new AbortController();
-    setLoading(true, marchonSearchPopup.i18n.loading);
+    setLoading(refs, true, marchonSearchPopup.i18n.loading);
 
     try {
       const payload = new URLSearchParams({
@@ -114,19 +165,45 @@
         throw new Error(data?.data?.message || marchonSearchPopup.i18n.error);
       }
 
-      setLoading(false, `${data.data.results.length} resultado(s) encontrado(s).`);
-      renderResults(data.data.results);
+      setLoading(refs, false, `${data.data.results.length} resultado(s) encontrado(s).`);
+      renderResults(refs, data.data.results);
     } catch (error) {
       if (error.name === "AbortError") {
         return;
       }
-      setLoading(false, marchonSearchPopup.i18n.error);
-      renderEmptyState(marchonSearchPopup.i18n.error);
+      setLoading(refs, false, marchonSearchPopup.i18n.error);
+      renderEmptyState(refs, marchonSearchPopup.i18n.error);
     }
   };
 
+  const bindSearch = (refs) => {
+    if (!refs?.form || !refs?.input) {
+      return;
+    }
+
+    refs.form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      runSearch(refs, refs.input.value ?? "");
+    });
+
+    refs.input.addEventListener("input", () => {
+      window.clearTimeout(debounceTimer);
+      debounceTimer = window.setTimeout(() => {
+        runSearch(refs, refs.input.value);
+      }, 220);
+    });
+
+    renderEmptyState(refs, marchonSearchPopup.i18n.initialHint);
+  };
+
   openButtons.forEach((button) => {
-    button.addEventListener("click", openPopup);
+    button.addEventListener("click", () => {
+      if (popup && popupRefs) {
+        openPopup();
+      } else {
+        openInline();
+      }
+    });
   });
 
   closeButtons.forEach((button) => {
@@ -134,22 +211,11 @@
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && !popup.hidden) {
+    if (event.key === "Escape" && popup && !popup.hidden) {
       closePopup();
     }
   });
 
-  form?.addEventListener("submit", (event) => {
-    event.preventDefault();
-    runSearch(input?.value ?? "");
-  });
-
-  input?.addEventListener("input", () => {
-    window.clearTimeout(debounceTimer);
-    debounceTimer = window.setTimeout(() => {
-      runSearch(input.value);
-    }, 220);
-  });
-
-  renderEmptyState(marchonSearchPopup.i18n.initialHint);
+  bindSearch(popupRefs);
+  bindSearch(inlineRefs);
 })();

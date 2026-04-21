@@ -63,6 +63,33 @@
     </div>
 </header>
 
+<section class="search-inline-fallback" data-search-inline hidden aria-label="Busca rápida no site">
+    <div class="search-inline-fallback-inner">
+        <div class="search-inline-fallback-header">
+            <span class="search-popup-kicker">Busca rápida</span>
+            <h2>Resultado da busca abaixo</h2>
+            <p>Se o pop-up não abrir, os resultados aparecem aqui.</p>
+        </div>
+
+        <form class="search-popup-form" data-search-inline-form novalidate>
+            <label class="screen-reader-text" for="marchon-search-inline-input">Buscar no site</label>
+            <input
+                type="search"
+                id="marchon-search-inline-input"
+                class="search-popup-input"
+                name="s"
+                placeholder="Buscar imóvel, código, página ou conteúdo"
+                autocomplete="off"
+                data-search-inline-input
+            >
+            <button type="submit" class="search-popup-submit">Buscar</button>
+        </form>
+
+        <div class="search-popup-status" data-search-inline-status aria-live="polite"></div>
+        <div class="search-popup-results" data-search-inline-results></div>
+    </div>
+</section>
+
 <div
     class="search-popup"
     id="marchon-search-popup"
