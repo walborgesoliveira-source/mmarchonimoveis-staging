@@ -271,10 +271,13 @@
 
 .marchon-page-content:has(.mcrm-app-shell),
 .marchon-page-content:has(.mcrm-login-shell) {
-  padding: 0;
   background:
     radial-gradient(circle at top left, rgba(196, 154, 42, 0.12), transparent 24%),
     linear-gradient(180deg, #fcfaf4 0%, #f3ede1 100%);
+}
+
+.marchon-page-content:has(.mcrm-app-shell) {
+  padding: 0;
 }
 
 .marchon-page-inner:has(.mcrm-app-shell),
@@ -335,11 +338,16 @@
   color: var(--mcrm-green-soft);
 }
 
-.mcrm-app-hero h1,
-.mcrm-login-card h1 {
+.mcrm-app-hero h1 {
   margin: 0;
   font-size: clamp(2rem, 4vw, 3.75rem);
   line-height: 0.95;
+}
+
+.mcrm-login-card h1 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  line-height: 1.1;
 }
 
 .mcrm-hero-copy,
@@ -926,13 +934,14 @@
 
 .mcrm-login-shell {
   display: grid;
-  min-height: 72vh;
+  min-height: auto;
   place-items: center;
+  padding: 3rem 1.25rem;
 }
 
 .mcrm-login-card {
-  width: min(100%, 560px);
-  padding: 2rem;
+  width: min(100%, 480px);
+  padding: 2rem 2.25rem;
 }
 
 .mcrm-login-form form {
