@@ -309,6 +309,24 @@ final class Marchon_CRM
             return;
         }
 
+        if (current_user_can('edit_imoveis')) {
+            $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+            $post_type = sanitize_key((string) ($_GET['post_type'] ?? ''));
+            $post_id = isset($_GET['post']) ? (int) $_GET['post'] : 0;
+
+            if ($post_type === 'imoveis') {
+                return;
+            }
+
+            if ($post_id > 0 && get_post_type($post_id) === 'imoveis') {
+                return;
+            }
+
+            if ($screen && $screen->post_type === 'imoveis') {
+                return;
+            }
+        }
+
         wp_safe_redirect(self::get_frontend_page_url());
         exit;
     }
@@ -493,7 +511,7 @@ final class Marchon_CRM
                         <a href="<?php echo esc_url($url_clientes); ?>" class="mcrm-nav-item <?php echo $page === 'clientes' ? 'is-active' : ''; ?>">Clientes</a>
                         <a href="<?php echo esc_url($url_cadastro); ?>" class="mcrm-nav-item <?php echo $page === 'cadastro' ? 'is-active' : ''; ?>">Cadastro</a>
                         <?php if ($can_manage_imoveis) : ?>
-                            <a href="<?php echo esc_url($url_anuncios); ?>" class="mcrm-nav-item">Anuncios</a>
+                            <a href="<?php echo esc_url($url_anuncios); ?>" class="mcrm-nav-item">Imoveis</a>
                         <?php endif; ?>
                     </nav>
 
@@ -512,9 +530,9 @@ final class Marchon_CRM
                     <div class="mcrm-hero-actions">
                         <a class="mcrm-btn mcrm-btn-primary" href="<?php echo esc_url($url_cadastro); ?>">Novo cliente</a>
                         <?php if ($can_create_imoveis) : ?>
-                            <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_novo_anuncio); ?>">Novo anuncio</a>
+                            <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_novo_anuncio); ?>">Novo imovel</a>
                         <?php elseif ($can_manage_imoveis) : ?>
-                            <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_anuncios); ?>">Anuncios</a>
+                            <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_anuncios); ?>">Imoveis</a>
                         <?php endif; ?>
                         <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">Sair</a>
                     </div>
@@ -537,14 +555,14 @@ final class Marchon_CRM
                                 <strong><?php echo esc_html($current_user->display_name ?: 'Usuario'); ?></strong>
                             </div>
                             <div class="mcrm-topbar-actions">
-                                <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_cadastro); ?>">Novo cliente</a>
+                                <a class="mcrm-btn mcrm-btn-secondary mcrm-btn-compact" href="<?php echo esc_url($url_cadastro); ?>">Cliente</a>
                                 <?php if ($can_manage_imoveis) : ?>
-                                    <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_anuncios); ?>">Anuncios</a>
+                                    <a class="mcrm-btn mcrm-btn-secondary mcrm-btn-compact" href="<?php echo esc_url($url_anuncios); ?>">Imoveis</a>
                                 <?php endif; ?>
                                 <?php if ($can_create_imoveis) : ?>
-                                    <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_novo_anuncio); ?>">Novo anuncio</a>
+                                    <a class="mcrm-btn mcrm-btn-secondary mcrm-btn-compact" href="<?php echo esc_url($url_novo_anuncio); ?>">Novo imovel</a>
                                 <?php endif; ?>
-                                <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">Sair</a>
+                                <a class="mcrm-btn mcrm-btn-secondary mcrm-btn-compact" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">Sair</a>
                             </div>
                         </div>
                     </header>

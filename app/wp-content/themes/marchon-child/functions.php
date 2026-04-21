@@ -286,6 +286,10 @@ function marchon_get_imoveis_capabilities(): array {
     ];
 }
 
+function marchon_is_imoveis_manager(): bool {
+    return current_user_can('edit_imoveis') && !current_user_can('administrator');
+}
+
 add_filter('register_post_type_args', function(array $args, string $post_type): array {
     if ($post_type !== 'imoveis') {
         return $args;
@@ -294,6 +298,7 @@ add_filter('register_post_type_args', function(array $args, string $post_type): 
     $args['capability_type'] = ['imovel', 'imoveis'];
     $args['map_meta_cap']    = true;
     $args['capabilities']    = marchon_get_imoveis_capabilities();
+    $args['supports']        = ['title', 'editor', 'thumbnail'];
 
     return $args;
 }, 20, 2);
@@ -341,7 +346,7 @@ add_action('init', function() {
 }, 30);
 
 add_action('admin_menu', function() {
-    if (!current_user_can('edit_imoveis') || current_user_can('administrator')) {
+    if (!marchon_is_imoveis_manager()) {
         return;
     }
 
@@ -392,7 +397,7 @@ add_action('admin_menu', function() {
 }, 999);
 
 add_action('admin_bar_menu', function(WP_Admin_Bar $wp_admin_bar) {
-    if (!current_user_can('edit_imoveis') || current_user_can('administrator')) {
+    if (!marchon_is_imoveis_manager()) {
         return;
     }
 
@@ -447,7 +452,7 @@ add_action('wp_head', 'marchon_render_iaguru_admin_bar_logo', 99);
 add_action('admin_head', 'marchon_render_iaguru_admin_bar_logo', 99);
 
 add_action('wp_dashboard_setup', function() {
-    if (!current_user_can('edit_imoveis') || current_user_can('administrator')) {
+    if (!marchon_is_imoveis_manager()) {
         return;
     }
 
@@ -461,8 +466,62 @@ add_action('wp_dashboard_setup', function() {
     remove_meta_box('dashboard_plugins', 'dashboard', 'normal');
 });
 
+add_filter('use_block_editor_for_post_type', function(bool $use_block_editor, string $post_type): bool {
+    if ($post_type === 'imoveis' && marchon_is_imoveis_manager()) {
+        return false;
+    }
+
+    return $use_block_editor;
+}, 10, 2);
+
+add_action('add_meta_boxes_imoveis', function() {
+    if (!marchon_is_imoveis_manager()) {
+        return;
+    }
+
+    foreach ([
+        'postexcerpt',
+        'commentstatusdiv',
+        'commentsdiv',
+        'slugdiv',
+        'trackbacksdiv',
+        'revisionsdiv',
+        'authordiv',
+        'pageparentdiv',
+        'formatdiv',
+        'postcustom',
+    ] as $meta_box_id) {
+        remove_meta_box($meta_box_id, 'imoveis', 'normal');
+        remove_meta_box($meta_box_id, 'imoveis', 'side');
+        remove_meta_box($meta_box_id, 'imoveis', 'advanced');
+    }
+}, 99);
+
+add_action('admin_head', function() {
+    if (!marchon_is_imoveis_manager()) {
+        return;
+    }
+
+    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
+    if (!$screen || $screen->post_type !== 'imoveis') {
+        return;
+    }
+    ?>
+    <style>
+        #contextual-help-link-wrap,
+        #screen-options-link-wrap,
+        .editor-post-featured-image__toggle,
+        .editor-post-excerpt,
+        .editor-post-discussion,
+        .editor-post-last-revision {
+            display: none !important;
+        }
+    </style>
+    <?php
+});
+
 add_action('admin_init', function() {
-    if (!current_user_can('edit_imoveis') || current_user_can('administrator')) {
+    if (!marchon_is_imoveis_manager()) {
         return;
     }
 

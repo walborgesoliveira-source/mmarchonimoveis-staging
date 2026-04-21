@@ -267,6 +267,8 @@
 .mcrm-topbar-actions {
   display: flex;
   gap: 0.65rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .marchon-page-content:has(.mcrm-app-shell),
@@ -469,6 +471,13 @@
   border: 1px solid rgba(45, 80, 22, 0.16);
   background: rgba(253, 252, 248, 0.78);
   color: var(--mcrm-green) !important;
+}
+
+.mcrm-btn-compact {
+  min-height: 40px;
+  padding: 0.65rem 0.9rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
 }
 
 .mcrm-stat-grid {
