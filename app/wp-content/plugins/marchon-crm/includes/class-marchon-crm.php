@@ -465,6 +465,8 @@ final class Marchon_CRM
         $brokers           = self::get_brokers();
         $clients           = $page === 'clientes' ? self::get_front_clients(-1) : self::get_front_clients(24);
         $current_user      = wp_get_current_user();
+        $can_manage_imoveis = current_user_can('edit_imoveis');
+        $can_create_imoveis = current_user_can('create_imoveis') || current_user_can('publish_imoveis');
         $notice            = isset($_GET['mcrm_notice']) ? sanitize_text_field(wp_unslash($_GET['mcrm_notice'])) : '';
         $status_breakdown  = self::aggregate_by_map('_mcrm_client_status', self::CLIENT_STATUSES);
         $interest_breakdown = self::aggregate_by_map('_mcrm_interest_type', self::INTEREST_TYPES);
@@ -472,6 +474,8 @@ final class Marchon_CRM
         $url_overview  = $page_url;
         $url_clientes  = add_query_arg('mcrm_page', 'clientes', $page_url);
         $url_cadastro  = add_query_arg('mcrm_page', 'cadastro', $page_url);
+        $url_anuncios  = admin_url('edit.php?post_type=imoveis');
+        $url_novo_anuncio = admin_url('post-new.php?post_type=imoveis');
 
         ob_start();
         ?>
@@ -488,6 +492,9 @@ final class Marchon_CRM
                         <a href="<?php echo esc_url($url_overview); ?>" class="mcrm-nav-item <?php echo $page === 'overview' ? 'is-active' : ''; ?>">Visao Geral</a>
                         <a href="<?php echo esc_url($url_clientes); ?>" class="mcrm-nav-item <?php echo $page === 'clientes' ? 'is-active' : ''; ?>">Clientes</a>
                         <a href="<?php echo esc_url($url_cadastro); ?>" class="mcrm-nav-item <?php echo $page === 'cadastro' ? 'is-active' : ''; ?>">Cadastro</a>
+                        <?php if ($can_manage_imoveis) : ?>
+                            <a href="<?php echo esc_url($url_anuncios); ?>" class="mcrm-nav-item">Anuncios</a>
+                        <?php endif; ?>
                     </nav>
 
                     <div class="mcrm-sidebar-metrics">
@@ -504,6 +511,11 @@ final class Marchon_CRM
 
                     <div class="mcrm-hero-actions">
                         <a class="mcrm-btn mcrm-btn-primary" href="<?php echo esc_url($url_cadastro); ?>">Novo cliente</a>
+                        <?php if ($can_create_imoveis) : ?>
+                            <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_novo_anuncio); ?>">Novo anuncio</a>
+                        <?php elseif ($can_manage_imoveis) : ?>
+                            <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_anuncios); ?>">Anuncios</a>
+                        <?php endif; ?>
                         <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">Sair</a>
                     </div>
                 </aside>
@@ -525,7 +537,13 @@ final class Marchon_CRM
                                 <strong><?php echo esc_html($current_user->display_name ?: 'Usuario'); ?></strong>
                             </div>
                             <div class="mcrm-topbar-actions">
-                                <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_cadastro); ?>">Novo</a>
+                                <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_cadastro); ?>">Novo cliente</a>
+                                <?php if ($can_manage_imoveis) : ?>
+                                    <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_anuncios); ?>">Anuncios</a>
+                                <?php endif; ?>
+                                <?php if ($can_create_imoveis) : ?>
+                                    <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_novo_anuncio); ?>">Novo anuncio</a>
+                                <?php endif; ?>
                                 <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">Sair</a>
                             </div>
                         </div>
