@@ -507,30 +507,7 @@ final class Marchon_CRM
                         </div>
                     </header>
 
-                    <div class="mcrm-app-hero" id="mcrm-overview">
-                        <div class="mcrm-hero-copywrap">
-                            <p class="mcrm-eyebrow">Marchon CRM</p>
-                            <h1>Um CRM comercial, elegante e leve para o corretor vender mais.</h1>
-                            <p class="mcrm-hero-copy">Interface responsiva para acompanhar leads, organizar interesses, filtrar oportunidades e cadastrar clientes sem depender do `wp-admin`.</p>
-                            <div class="mcrm-hero-badges">
-                                <span>Cadastro rapido</span>
-                                <span>Pipeline de leads</span>
-                                <span>Terrenos e imoveis</span>
-                            </div>
-                        </div>
-                        <div class="mcrm-hero-preview">
-                            <div class="mcrm-preview-grid">
-                                <div class="mcrm-preview-card">
-                                    <span class="mcrm-preview-label">Terrenos</span>
-                                    <strong><?php echo esc_html((string) self::count_by_meta('_mcrm_interest_type', 'terreno')); ?></strong>
-                                </div>
-                                <div class="mcrm-preview-card">
-                                    <span class="mcrm-preview-label">Clientes</span>
-                                    <strong><?php echo esc_html((string) self::count_clients()); ?></strong>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <div id="mcrm-overview"></div>
 
                     <?php self::render_front_notice($notice); ?>
 
