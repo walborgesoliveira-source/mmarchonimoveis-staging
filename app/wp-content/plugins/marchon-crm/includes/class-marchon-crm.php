@@ -555,7 +555,8 @@ final class Marchon_CRM
                                 <strong><?php echo esc_html($current_user->display_name ?: 'Usuario'); ?></strong>
                             </div>
                             <div class="mcrm-topbar-actions">
-                                <a class="mcrm-btn mcrm-btn-secondary mcrm-btn-compact" href="<?php echo esc_url($url_cadastro); ?>">Cliente</a>
+                                <a class="mcrm-btn mcrm-btn-secondary mcrm-btn-compact" href="<?php echo esc_url($url_clientes); ?>">Clientes</a>
+                                <a class="mcrm-btn mcrm-btn-secondary mcrm-btn-compact" href="<?php echo esc_url($url_cadastro); ?>">Novo cliente</a>
                                 <?php if ($can_manage_imoveis) : ?>
                                     <a class="mcrm-btn mcrm-btn-secondary mcrm-btn-compact" href="<?php echo esc_url($url_anuncios); ?>">Imoveis</a>
                                 <?php endif; ?>
