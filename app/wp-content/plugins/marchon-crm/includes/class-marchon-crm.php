@@ -76,6 +76,7 @@ final class Marchon_CRM
         add_filter('manage_mcrm_client_posts_columns', [self::class, 'register_columns']);
         add_action('manage_mcrm_client_posts_custom_column', [self::class, 'render_columns'], 10, 2);
         add_filter('login_redirect', [self::class, 'frontend_login_redirect'], 20, 3);
+        add_filter('logout_redirect', [self::class, 'frontend_logout_redirect'], 20, 3);
         add_shortcode('marchon_crm_app', [self::class, 'render_frontend_app']);
         add_action('wp_ajax_mcrm_quick_search', [self::class, 'handle_ajax_quick_search']);
     }
@@ -327,6 +328,23 @@ final class Marchon_CRM
         }
 
         return $redirect_to;
+    }
+
+    public static function frontend_logout_redirect(string $redirect_to, string $requested_redirect_to, $user): string
+    {
+        if (!$user instanceof \WP_User) {
+            return home_url('/');
+        }
+
+        if (in_array('administrator', $user->roles, true)) {
+            return $redirect_to ?: home_url('/');
+        }
+
+        if (self::user_has_crm_access($user)) {
+            return home_url('/');
+        }
+
+        return $redirect_to ?: home_url('/');
     }
 
     public static function handle_front_client_save(): void
