@@ -396,6 +396,18 @@ add_action('admin_bar_menu', function(WP_Admin_Bar $wp_admin_bar) {
         return;
     }
 
+    $wp_admin_bar->remove_node('wp-logo');
+    $wp_admin_bar->add_node([
+        'id' => 'wp-logo',
+        'title' => '<span class="marchon-adminbar-logo" aria-hidden="true"></span><span class="screen-reader-text">IA Guru</span>',
+        'href' => 'https://www.iaguru.com.br/',
+        'meta' => [
+            'title' => 'IA Guru',
+            'target' => '_blank',
+            'rel' => 'noopener noreferrer',
+        ],
+    ]);
+
     foreach ([
         'comments',
         'new-content',
@@ -409,6 +421,30 @@ add_action('admin_bar_menu', function(WP_Admin_Bar $wp_admin_bar) {
         $wp_admin_bar->remove_node($node);
     }
 }, 999);
+
+function marchon_render_iaguru_admin_bar_logo(): void {
+    $logo_url = get_stylesheet_directory_uri() . '/assets/images/logo-iaguru2026.png';
+    ?>
+    <style>
+        #wpadminbar #wp-admin-bar-wp-logo > .ab-item {
+            padding-inline: 10px;
+        }
+
+        #wpadminbar #wp-admin-bar-wp-logo .marchon-adminbar-logo {
+            display: block;
+            width: 84px;
+            height: 32px;
+            background-image: url('<?php echo esc_url($logo_url); ?>');
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+        }
+    </style>
+    <?php
+}
+
+add_action('wp_head', 'marchon_render_iaguru_admin_bar_logo', 99);
+add_action('admin_head', 'marchon_render_iaguru_admin_bar_logo', 99);
 
 add_action('wp_dashboard_setup', function() {
     if (!current_user_can('edit_imoveis') || current_user_can('administrator')) {
