@@ -43,6 +43,16 @@
                 'fallback_cb'    => false,
             ]); ?>
 
+            <button
+                type="button"
+                class="header-search-trigger"
+                data-search-popup-open
+                aria-controls="marchon-search-popup"
+                aria-expanded="false"
+            >
+                Buscar
+            </button>
+
             <a
                 href="<?php echo esc_url(is_user_logged_in() ? admin_url() : wp_login_url()); ?>"
                 class="header-login-btn"
@@ -52,3 +62,38 @@
         </nav>
     </div>
 </header>
+
+<div
+    class="search-popup"
+    id="marchon-search-popup"
+    data-search-popup
+    hidden
+    aria-hidden="true"
+>
+    <div class="search-popup-backdrop" data-search-popup-close></div>
+    <div class="search-popup-dialog" role="dialog" aria-modal="true" aria-labelledby="marchon-search-popup-title">
+        <button type="button" class="search-popup-close" data-search-popup-close aria-label="Fechar busca">×</button>
+        <div class="search-popup-header">
+            <span class="search-popup-kicker">Busca rápida</span>
+            <h2 id="marchon-search-popup-title">Encontre imóveis e páginas em segundos</h2>
+            <p>Digite sua busca e veja os resultados imediatamente.</p>
+        </div>
+
+        <form class="search-popup-form" data-search-popup-form novalidate>
+            <label class="screen-reader-text" for="marchon-search-input">Buscar no site</label>
+            <input
+                type="search"
+                id="marchon-search-input"
+                class="search-popup-input"
+                name="s"
+                placeholder="Buscar imóvel, código, página ou conteúdo"
+                autocomplete="off"
+                data-search-popup-input
+            >
+            <button type="submit" class="search-popup-submit">Buscar</button>
+        </form>
+
+        <div class="search-popup-status" data-search-popup-status aria-live="polite"></div>
+        <div class="search-popup-results" data-search-popup-results></div>
+    </div>
+</div>

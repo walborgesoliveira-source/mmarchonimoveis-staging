@@ -25,6 +25,26 @@ add_action('wp_enqueue_scripts', function() {
         [],
         null
     );
+
+    wp_enqueue_script(
+        'marchon-search-popup',
+        get_stylesheet_directory_uri() . '/assets/js/search-popup.js',
+        [],
+        wp_get_theme()->get('Version'),
+        true
+    );
+
+    wp_localize_script('marchon-search-popup', 'marchonSearchPopup', [
+        'ajaxUrl' => admin_url('admin-ajax.php'),
+        'nonce'   => wp_create_nonce('marchon_search_popup'),
+        'i18n'    => [
+            'initialHint'  => 'Comece digitando para pesquisar imóveis, páginas e conteúdos.',
+            'minimumChars' => 'Digite pelo menos 2 caracteres para buscar.',
+            'loading'      => 'Buscando resultados...',
+            'noResults'    => 'Nenhum resultado encontrado.',
+            'error'        => 'Não foi possível concluir a busca agora.',
+        ],
+    ]);
 });
 
 // ── SUPORTE DO TEMA ─────────────────────────────────────────────────────────
@@ -309,6 +329,123 @@ function marchon_render_iaguru_favicon(): void {
 add_action('wp_head', 'marchon_render_iaguru_favicon', 1);
 add_action('admin_head', 'marchon_render_iaguru_favicon', 1);
 add_action('login_head', 'marchon_render_iaguru_favicon', 1);
+
+function marchon_search_popup_post_type_label(string $post_type): string {
+    return match ($post_type) {
+        'imoveis' => 'Imóvel',
+        'page'    => 'Página',
+        'post'    => 'Post',
+        default   => 'Conteúdo',
+    };
+}
+
+function marchon_search_popup_result_item(WP_Post $post): array {
+    $post_type = get_post_type($post);
+    $meta_bits = [];
+
+    if ($post_type === 'imoveis') {
+        $codigo = get_field('codigo', $post->ID);
+        $preco  = get_field('preco', $post->ID);
+
+        if ($codigo) {
+            $meta_bits[] = 'Cód. ' . wp_strip_all_tags((string) $codigo);
+        }
+
+        if ($preco) {
+            $meta_bits[] = wp_strip_all_tags((string) $preco);
+        }
+    }
+
+    $description = has_excerpt($post) ? get_the_excerpt($post) : wp_trim_words(wp_strip_all_tags(get_post_field('post_content', $post)), 18);
+
+    return [
+        'id'          => $post->ID,
+        'title'       => get_the_title($post),
+        'url'         => get_permalink($post),
+        'typeLabel'   => marchon_search_popup_post_type_label($post_type),
+        'meta'        => implode(' • ', array_filter($meta_bits)),
+        'description' => wp_strip_all_tags($description),
+    ];
+}
+
+function marchon_handle_search_popup_ajax(): void {
+    check_ajax_referer('marchon_search_popup', 'nonce');
+
+    $term = sanitize_text_field(wp_unslash($_POST['term'] ?? ''));
+    if (mb_strlen($term) < 2) {
+        wp_send_json_success([
+            'results' => [],
+        ]);
+    }
+
+    $post_types = ['imoveis', 'page', 'post'];
+    $ids = [];
+    $normalized_term = preg_replace('/\s+/', '', $term);
+    $is_code_like = (bool) preg_match('/^[0-9A-Za-z_-]+$/', $normalized_term);
+
+    $codigo_query = new WP_Query([
+        'post_type'           => 'imoveis',
+        'post_status'         => 'publish',
+        'posts_per_page'      => 6,
+        'ignore_sticky_posts' => true,
+        'no_found_rows'       => true,
+        'fields'              => 'ids',
+        'meta_query'          => [
+            [
+                'key'     => 'codigo',
+                'value'   => $term,
+                'compare' => 'LIKE',
+            ],
+        ],
+    ]);
+
+    if (!empty($codigo_query->posts)) {
+        $ids = array_map('intval', $codigo_query->posts);
+    }
+
+    if (!$is_code_like || empty($ids)) {
+        $search_query = new WP_Query([
+            'post_type'              => $post_types,
+            'post_status'            => 'publish',
+            's'                      => $term,
+            'posts_per_page'         => 6,
+            'ignore_sticky_posts'    => true,
+            'no_found_rows'          => true,
+            'fields'                 => 'ids',
+            'orderby'                => ['post_type' => 'ASC', 'date' => 'DESC'],
+            'suppress_filters'       => false,
+        ]);
+
+        if (!empty($search_query->posts)) {
+            $ids = array_values(array_unique(array_merge($ids, array_map('intval', $search_query->posts))));
+        }
+    }
+
+    $ids = array_slice($ids, 0, 6);
+
+    if (empty($ids)) {
+        wp_send_json_success([
+            'results' => [],
+        ]);
+    }
+
+    $ordered_posts = get_posts([
+        'post_type'      => $post_types,
+        'post_status'    => 'publish',
+        'posts_per_page' => count($ids),
+        'post__in'       => $ids,
+        'orderby'        => 'post__in',
+    ]);
+
+    $results = array_map('marchon_search_popup_result_item', $ordered_posts);
+
+    wp_send_json_success([
+        'results' => $results,
+    ]);
+}
+
+add_action('wp_ajax_marchon_search_popup', 'marchon_handle_search_popup_ajax');
+add_action('wp_ajax_nopriv_marchon_search_popup', 'marchon_handle_search_popup_ajax');
 
 // ── HELPERS DO TEMA ─────────────────────────────────────────────────────────
 function marchon_env(string $key, string $default = ''): string {
