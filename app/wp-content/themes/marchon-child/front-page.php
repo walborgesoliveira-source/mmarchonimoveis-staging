@@ -12,6 +12,11 @@ get_header(); ?>
 <?php echo do_shortcode('[marchon_stats]'); ?>
 
 <?php $marchon_editorial_posts = marchon_render_editorial_posts(3); ?>
+<?php $marchon_comments = get_comments([
+    'status'    => 'approve',
+    'number'    => 6,
+    'post_type' => 'imoveis',
+]); ?>
 
 <!-- ÚLTIMOS IMÓVEIS -->
 <section class="marchon-imoveis">
@@ -27,12 +32,30 @@ get_header(); ?>
     </div>
 </section>
 
+<section class="marchon-vip-lead" id="alerta-vip">
+    <div class="marchon-vip-lead-inner">
+        <div class="marchon-vip-lead-copy">
+            <div class="secao-label">Captura ativa</div>
+            <h2 class="secao-titulo">Receba oportunidades antes de irem para o <em>Instagram</em></h2>
+            <p class="marchon-vip-lead-text">Se você está buscando terreno, casa ou refúgio em Lumiar e Nova Friburgo, este é o canal para receber oportunidades com contexto, prioridade e sem depender de sorte no feed.</p>
+            <div class="marchon-vip-lead-points">
+                <span>Novidades por e-mail e WhatsApp</span>
+                <span>Ofertas com perfil alinhado</span>
+                <span>Atendimento priorizado</span>
+            </div>
+        </div>
+        <div class="marchon-vip-lead-form">
+            <?php echo marchon_render_vip_alert_form(); ?>
+        </div>
+    </div>
+</section>
+
 <?php if ($marchon_editorial_posts !== '') : ?>
 <section class="marchon-editorial-home">
     <div class="marchon-editorial-home-inner">
         <div class="secao-label">Conteúdo</div>
         <h2 class="secao-titulo">Atualizações, oportunidades e bastidores do <em>mercado local</em></h2>
-        <p class="marchon-editorial-intro">Os posts publicados no WordPress agora aparecem na primeira página. Isso resolve o conteúdo órfão e cria um fluxo simples para você manter novidades, campanhas e destaques.</p>
+        <p class="marchon-editorial-intro">Conteúdo útil para quem está avaliando compra, investimento e estilo de vida na serra. Aqui entram novidades, bastidores e argumentos que ajudam a decidir com mais segurança.</p>
         <?php echo $marchon_editorial_posts; ?>
     </div>
 </section>
@@ -45,14 +68,17 @@ get_header(); ?>
             <div class="marchon-instagram-home-copy">
                 <div class="secao-label">Instagram</div>
                 <h2 class="secao-titulo">Descubra imóveis que encantam à primeira vista e despertam <em>vontade de visitar</em></h2>
-                <p class="marchon-instagram-home-intro">No Instagram da MM Imóveis, cada publicação aproxima você de oportunidades especiais, mostrando detalhes, atmosfera e o estilo de vida que cada imóvel pode oferecer.</p>
+                <p class="marchon-instagram-home-intro">No Instagram da MM Imóveis, cada publicação funciona como uma vitrine viva: mostra detalhes, atmosfera e o estilo de vida de cada oportunidade antes mesmo da visita.</p>
                 <div class="marchon-instagram-home-points">
                     <span>Oportunidades em destaque</span>
                     <span>Ambientes que inspiram</span>
                     <span>Contato rápido pelo WhatsApp</span>
                 </div>
                 <div class="marchon-instagram-home-actions">
-                    <a href="https://wa.me/5522998121056" target="_blank" rel="noopener noreferrer" class="btn-verde">Quero atendimento prioritário</a>
+                    <a href="<?php echo esc_url(marchon_get_whatsapp_url([
+                        'source' => 'home',
+                        'action' => 'receber atendimento prioritário',
+                    ])); ?>" target="_blank" rel="noopener noreferrer" class="btn-verde">Quero prioridade no atendimento</a>
                     <a href="https://www.instagram.com/mmimoveis__/" target="_blank" rel="noopener noreferrer" class="btn-outline">Ver vitrine no Instagram</a>
                 </div>
             </div>
@@ -83,48 +109,36 @@ get_header(); ?>
             <p>Corretor de imóveis altamente qualificado e comprometido, com registro ativo no CRECI, garantindo segurança e profissionalismo em cada negociação.</p>
             <p>Nascido em Nova Friburgo e residente do 5º Distrito de Lumiar, possuo uma conexão especial com a região — compreendendo suas nuances culturais e as necessidades específicas dos moradores e compradores locais.</p>
             <p>Com vasta experiência em vendas e locação na área, ofereço orientação personalizada em cada etapa do processo.</p>
-            <a href="https://wa.me/5522998121056" target="_blank" class="btn-wpp">
+            <a href="<?php echo esc_url(marchon_get_whatsapp_url([
+                'source' => 'seção sobre o corretor',
+                'action' => 'tirar dúvidas sobre compra e venda',
+            ])); ?>" target="_blank" rel="noopener noreferrer" class="btn-wpp">
                 <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                Falar com Marcos
+                Tira dúvidas no WhatsApp
             </a>
         </div>
     </div>
 </section>
 
 <!-- DEPOIMENTOS -->
+<?php if (!empty($marchon_comments)) : ?>
 <section class="marchon-depoimentos">
     <div class="marchon-depoimentos-inner">
         <div class="secao-label">Clientes</div>
         <h2 class="secao-titulo">O que dizem sobre<br><em>nosso trabalho</em></h2>
         <div class="depoimentos-grid">
             <?php
-            $args = [
-                'post_type'      => 'comments',
-                'status'         => 'approve',
-                'number'         => 6,
-                'post_type__in'  => ['imoveis'],
-            ];
-            $comments = get_comments([
-                'status'  => 'approve',
-                'number'  => 6,
-                'post_type' => 'imoveis',
-            ]);
-            if ($comments):
-                foreach ($comments as $comment): ?>
+                foreach ($marchon_comments as $comment): ?>
                 <div class="depoimento-card">
                     <div class="depoimento-estrelas">★★★★★</div>
                     <p class="depoimento-texto"><?php echo esc_html($comment->comment_content); ?></p>
                     <div class="depoimento-autor"><?php echo esc_html($comment->comment_author); ?></div>
                 </div>
-            <?php endforeach;
-            else: ?>
-                <p style="color:var(--cinza-suave);grid-column:1/-1">
-                    Os depoimentos aparecerão aqui conforme os clientes forem comentando nos imóveis.
-                </p>
-            <?php endif; ?>
+            <?php endforeach; ?>
         </div>
     </div>
 </section>
+<?php endif; ?>
 
 <!-- CONTATO -->
 <section class="marchon-contato" id="contato">
@@ -139,7 +153,10 @@ get_header(); ?>
                     </div>
                     <div>
                         <span class="contato-label">WhatsApp / Telefone</span>
-                        <div class="contato-valor"><a href="https://wa.me/5522998121056">(22) 99812-1056</a></div>
+                        <div class="contato-valor"><a href="<?php echo esc_url(marchon_get_whatsapp_url([
+                            'source' => 'bloco de contato da home',
+                            'action' => 'falar sobre um imóvel',
+                        ])); ?>">(22) 99812-1056</a></div>
                     </div>
                 </div>
                 <div class="contato-item">
@@ -177,11 +194,14 @@ get_header(); ?>
             <?php else: ?>
                 <div class="contact-fallback-card">
                     <div class="secao-label">Contato direto</div>
-                    <h3 class="contact-fallback-title">O formulário ainda não está ativo neste ambiente.</h3>
-                    <p>Você pode falar com Marcos agora mesmo por WhatsApp ou por e-mail.</p>
+                    <h3 class="contact-fallback-title">Prefere falar direto com Marcos?</h3>
+                    <p>Se você já tem um imóvel em vista ou quer orientação rápida, o WhatsApp continua sendo o caminho mais curto.</p>
                     <div class="contact-fallback-actions">
-                        <a href="https://wa.me/5522998121056" target="_blank" class="btn-verde">Chamar no WhatsApp</a>
-                        <a href="mailto:suportemarcosmarchonimoveis@gmail.com" class="btn-outline">Enviar e-mail</a>
+                        <a href="<?php echo esc_url(marchon_get_whatsapp_url([
+                            'source' => 'bloco de contato da home',
+                            'action' => 'agendar uma conversa',
+                        ])); ?>" target="_blank" rel="noopener noreferrer" class="btn-verde">Agendar conversa</a>
+                        <a href="mailto:<?php echo esc_attr(marchon_get_contact_email()); ?>" class="btn-outline">Enviar e-mail</a>
                     </div>
                 </div>
             <?php endif; ?>

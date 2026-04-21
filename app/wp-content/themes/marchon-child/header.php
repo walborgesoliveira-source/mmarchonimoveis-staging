@@ -52,13 +52,6 @@
             >
                 Buscar
             </button>
-
-            <a
-                href="<?php echo esc_url(is_user_logged_in() ? admin_url() : wp_login_url()); ?>"
-                class="header-login-btn"
-            >
-                <?php echo is_user_logged_in() ? 'Painel' : 'Login'; ?>
-            </a>
         </nav>
     </div>
 </header>
@@ -68,7 +61,7 @@
         <div class="search-inline-fallback-header">
             <span class="search-popup-kicker">Busca rápida</span>
             <h2>Resultado da busca abaixo</h2>
-            <p>Se o pop-up não abrir, os resultados aparecem aqui.</p>
+            <p>Se o pop-up não abrir, os resultados aparecem aqui. Códigos de imóveis têm prioridade.</p>
         </div>
 
         <form class="search-popup-form" data-search-inline-form novalidate>
@@ -78,7 +71,7 @@
                 id="marchon-search-inline-input"
                 class="search-popup-input"
                 name="s"
-                placeholder="Buscar imóvel, código, página ou conteúdo"
+                placeholder="Busque por código, bairro ou tipo de imóvel"
                 autocomplete="off"
                 data-search-inline-input
             >
@@ -103,7 +96,7 @@
         <div class="search-popup-header">
             <span class="search-popup-kicker">Busca rápida</span>
             <h2 id="marchon-search-popup-title">Encontre imóveis e páginas em segundos</h2>
-            <p>Digite sua busca e veja os resultados imediatamente.</p>
+            <p>Digite o código do imóvel primeiro para uma busca mais rápida, ou pesquise por bairro, tipo e conteúdo.</p>
         </div>
 
         <form class="search-popup-form" data-search-popup-form novalidate>
@@ -113,7 +106,7 @@
                 id="marchon-search-input"
                 class="search-popup-input"
                 name="s"
-                placeholder="Buscar imóvel, código, página ou conteúdo"
+                placeholder="Ex.: 001, Lumiar, terreno, casa"
                 autocomplete="off"
                 data-search-popup-input
             >

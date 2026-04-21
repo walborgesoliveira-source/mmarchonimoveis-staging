@@ -38,7 +38,7 @@ add_action('wp_enqueue_scripts', function() {
         'ajaxUrl' => admin_url('admin-ajax.php'),
         'nonce'   => wp_create_nonce('marchon_search_popup'),
         'i18n'    => [
-            'initialHint'  => 'Comece digitando para pesquisar imóveis, páginas e conteúdos.',
+            'initialHint'  => 'Busque primeiro pelo código do imóvel ou digite bairro, tipo e conteúdo.',
             'minimumChars' => 'Digite pelo menos 2 caracteres para buscar.',
             'loading'      => 'Buscando resultados...',
             'noResults'    => 'Nenhum resultado encontrado.',
@@ -68,13 +68,190 @@ add_action('after_setup_theme', function() {
     ]);
 });
 
-// ── PORTAL DO CORRETOR NO MENU PRINCIPAL ───────────────────────────────────
+function marchon_whatsapp_number(): string {
+    return '5522998121056';
+}
+
+function marchon_get_contact_email(): string {
+    return 'suportemarcosmarchonimoveis@gmail.com';
+}
+
+function marchon_get_portal_url(): string {
+    return home_url('/marchon-crm/');
+}
+
+function marchon_get_first_field(int $post_id, array $keys): string {
+    foreach ($keys as $key) {
+        $value = get_field($key, $post_id);
+        if ($value !== null && $value !== '' && $value !== false) {
+            return is_scalar($value) ? trim((string) $value) : '';
+        }
+    }
+
+    return '';
+}
+
+function marchon_get_whatsapp_url(array $args = []): string {
+    $action = trim((string) ($args['action'] ?? 'receber mais informações'));
+    $source = trim((string) ($args['source'] ?? 'site'));
+    $title  = trim((string) ($args['title'] ?? ''));
+    $code   = trim((string) ($args['code'] ?? ''));
+    $text   = trim((string) ($args['text'] ?? ''));
+
+    if ($text === '') {
+        if ($title !== '' || $code !== '') {
+            $imovel = $title !== '' ? $title : 'este imóvel';
+            $codigo = $code !== '' ? ' Cód. ' . $code : '';
+            $text = sprintf(
+                'Olá, vi o imóvel %s%s no %s e gostaria de %s.',
+                $imovel,
+                $codigo,
+                $source,
+                $action
+            );
+        } else {
+            $text = sprintf('Olá, vim do %s e gostaria de %s.', $source, $action);
+        }
+    }
+
+    return sprintf(
+        'https://wa.me/%s?text=%s',
+        marchon_whatsapp_number(),
+        rawurlencode($text)
+    );
+}
+
+function marchon_get_imovel_card_metrics(int $post_id): array {
+    $metrics = [];
+
+    $area_total = marchon_get_first_field($post_id, ['area_total', 'area_terreno', 'area_lote']);
+    $area_construida = marchon_get_first_field($post_id, ['area_construida', 'area_privativa']);
+    $vagas = marchon_get_first_field($post_id, ['vagas', 'garagem']);
+    $area_padrao = marchon_get_first_field($post_id, ['area']);
+
+    if ($area_total !== '') {
+        $metrics[] = [
+            'icon'  => 'area',
+            'label' => 'Área total',
+            'value' => $area_total,
+        ];
+    }
+
+    if ($area_construida !== '') {
+        $metrics[] = [
+            'icon'  => 'built',
+            'label' => 'Área construída',
+            'value' => $area_construida,
+        ];
+    }
+
+    if ($vagas !== '') {
+        $metrics[] = [
+            'icon'  => 'garage',
+            'label' => 'Vagas',
+            'value' => $vagas,
+        ];
+    }
+
+    if (empty($metrics) && $area_padrao !== '') {
+        $metrics[] = [
+            'icon'  => 'area',
+            'label' => 'Área',
+            'value' => $area_padrao,
+        ];
+    }
+
+    return $metrics;
+}
+
+function marchon_render_metric_icon(string $icon): string {
+    return match ($icon) {
+        'built' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>',
+        'garage' => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-7 9 7M5 10v9h14v-9M8 19v-5h8v5M8.5 11h.01M15.5 11h.01"/></svg>',
+        default => '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16v12H4zM9 6v12M15 6v12M4 12h16"/></svg>',
+    };
+}
+
+function marchon_render_imovel_card(int $post_id, string $heading_tag = 'h3'): string {
+    $codigo = get_field('codigo', $post_id);
+    $tipo = get_field('tipo', $post_id);
+    $preco = get_field('preco', $post_id);
+    $destaque = get_field('destaque', $post_id);
+    $foto = get_field('fotos', $post_id);
+    $foto_url = is_array($foto) ? (string) ($foto['url'] ?? '') : '';
+    $tipos_label = ['terreno' => 'Terreno', 'casa' => 'Casa', 'apartamento' => 'Apartamento', 'comercial' => 'Comercial'];
+    $heading_tag = in_array($heading_tag, ['h2', 'h3', 'h4'], true) ? $heading_tag : 'h3';
+    $metrics = marchon_get_imovel_card_metrics($post_id);
+    $title = get_the_title($post_id);
+    $whatsapp_url = marchon_get_whatsapp_url([
+        'source' => 'site',
+        'action' => 'consultar disponibilidade',
+        'title'  => $title,
+        'code'   => (string) $codigo,
+    ]);
+
+    ob_start();
+    ?>
+    <article class="card-imovel">
+        <div class="card-foto">
+            <?php if ($foto_url): ?>
+                <img src="<?php echo esc_url($foto_url); ?>" alt="<?php echo esc_attr($title); ?>" loading="lazy">
+            <?php else: ?>
+                <div class="card-foto-placeholder">
+                    <svg viewBox="0 0 24 24" width="32" height="32" stroke="#c5baa8" fill="none" stroke-width="1">
+                        <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                    <span>Foto em breve</span>
+                </div>
+            <?php endif; ?>
+            <?php if ($tipo): ?>
+                <span class="card-tipo"><?php echo esc_html($tipos_label[$tipo] ?? $tipo); ?></span>
+            <?php endif; ?>
+            <?php if ($destaque): ?>
+                <span class="card-destaque">Destaque</span>
+            <?php endif; ?>
+        </div>
+        <div class="card-body">
+            <?php if ($codigo): ?>
+                <div class="card-codigo">Cód. <?php echo esc_html($codigo); ?></div>
+            <?php endif; ?>
+            <<?php echo $heading_tag; ?> class="card-titulo">
+                <a href="<?php echo esc_url(get_permalink($post_id)); ?>"><?php echo esc_html($title); ?></a>
+            </<?php echo $heading_tag; ?>>
+            <?php if ($preco): ?>
+                <div class="card-preco-destaque"><?php echo esc_html($preco); ?></div>
+            <?php endif; ?>
+            <div class="card-resumo"><?php echo esc_html(wp_trim_words(get_the_excerpt($post_id), 20)); ?></div>
+            <?php if (!empty($metrics)): ?>
+                <div class="card-info">
+                    <?php foreach ($metrics as $metric): ?>
+                        <span class="card-meta-pill" aria-label="<?php echo esc_attr($metric['label']); ?>">
+                            <span class="card-meta-icon"><?php echo marchon_render_metric_icon($metric['icon']); ?></span>
+                            <span class="card-meta-copy">
+                                <strong><?php echo esc_html($metric['value']); ?></strong>
+                                <small><?php echo esc_html($metric['label']); ?></small>
+                            </span>
+                        </span>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+            <div class="card-actions">
+                <a href="<?php echo esc_url(get_permalink($post_id)); ?>" class="btn-outline card-btn">Ver detalhes</a>
+                <a href="<?php echo esc_url($whatsapp_url); ?>" target="_blank" rel="noopener noreferrer" class="btn-verde card-btn">Consultar disponibilidade</a>
+            </div>
+        </div>
+    </article>
+    <?php
+
+    return (string) ob_get_clean();
+}
+
 add_filter('wp_nav_menu_items', function(string $items, object $args): string {
     if (($args->theme_location ?? '') !== 'menu-principal') {
         return $items;
     }
 
-    $url   = home_url('/marchon-crm/');
+    $url   = marchon_get_portal_url();
     $label = 'Portal do Corretor';
     $class = 'menu-item menu-item-portal-corretor';
 
@@ -391,8 +568,14 @@ function marchon_handle_search_popup_ajax(): void {
         'no_found_rows'       => true,
         'fields'              => 'ids',
         'meta_query'          => [
+            'relation' => 'OR',
             [
                 'key'     => 'codigo',
+                'value'   => $term,
+                'compare' => 'LIKE',
+            ],
+            [
+                'key'     => 'codigo_referencia',
                 'value'   => $term,
                 'compare' => 'LIKE',
             ],
@@ -490,6 +673,119 @@ function marchon_get_contact_form_shortcode() {
 
     return sprintf('[contact-form-7 id="%d" title="%s"]', $forms[0]->ID, esc_attr($forms[0]->post_title));
 }
+
+add_action('init', function() {
+    register_post_type('vip_lead', [
+        'labels' => [
+            'name'          => 'Alertas VIP',
+            'singular_name' => 'Alerta VIP',
+        ],
+        'public'              => false,
+        'show_ui'             => true,
+        'show_in_menu'        => true,
+        'menu_icon'           => 'dashicons-email-alt',
+        'supports'            => ['title'],
+        'capability_type'     => 'post',
+        'map_meta_cap'        => true,
+        'menu_position'       => 26,
+        'exclude_from_search' => true,
+    ]);
+});
+
+function marchon_render_vip_alert_form(): string {
+    $status = sanitize_key((string) ($_GET['alerta_vip'] ?? ''));
+    $message = '';
+    $message_class = '';
+
+    if ($status === 'sucesso') {
+        $message = 'Cadastro recebido. O lead foi salvo no staging para acompanhamento interno.';
+        $message_class = 'is-success';
+    } elseif ($status === 'erro') {
+        $message = 'Não foi possível registrar o cadastro agora. Revise os campos e tente novamente.';
+        $message_class = 'is-error';
+    }
+
+    ob_start();
+    ?>
+    <div class="vip-alert-card">
+        <div class="secao-label">Alerta VIP</div>
+        <h3 class="vip-alert-title">Não encontrou o imóvel ideal?</h3>
+        <p class="vip-alert-text">Cadastre-se no nosso Alerta VIP e receba as novidades de Lumiar e Nova Friburgo antes de irem para o Instagram.</p>
+        <?php if ($message !== '') : ?>
+            <div class="vip-alert-message <?php echo esc_attr($message_class); ?>"><?php echo esc_html($message); ?></div>
+        <?php endif; ?>
+        <form class="vip-alert-form" action="<?php echo esc_url(admin_url('admin-post.php')); ?>" method="post">
+            <input type="hidden" name="action" value="marchon_vip_alert_signup">
+            <input type="hidden" name="source" value="home">
+            <?php wp_nonce_field('marchon_vip_alert_signup', 'marchon_vip_nonce'); ?>
+            <div class="vip-alert-grid">
+                <label>
+                    <span>Nome</span>
+                    <input type="text" name="name" required>
+                </label>
+                <label>
+                    <span>E-mail</span>
+                    <input type="email" name="email" required>
+                </label>
+                <label>
+                    <span>WhatsApp</span>
+                    <input type="tel" name="whatsapp" required>
+                </label>
+                <label>
+                    <span>Interesse</span>
+                    <input type="text" name="interest" placeholder="Ex.: terreno em Lumiar, casa com vista, sítio">
+                </label>
+            </div>
+            <button type="submit" class="btn-verde vip-alert-submit">Quero receber antes</button>
+        </form>
+    </div>
+    <?php
+
+    return (string) ob_get_clean();
+}
+
+function marchon_handle_vip_alert_signup(): void {
+    $redirect = home_url('/?alerta_vip=erro');
+
+    if (!wp_verify_nonce($_POST['marchon_vip_nonce'] ?? '', 'marchon_vip_alert_signup')) {
+        wp_safe_redirect($redirect);
+        exit;
+    }
+
+    $name = sanitize_text_field(wp_unslash($_POST['name'] ?? ''));
+    $email = sanitize_email(wp_unslash($_POST['email'] ?? ''));
+    $whatsapp = sanitize_text_field(wp_unslash($_POST['whatsapp'] ?? ''));
+    $interest = sanitize_text_field(wp_unslash($_POST['interest'] ?? ''));
+    $source = sanitize_text_field(wp_unslash($_POST['source'] ?? 'home'));
+
+    if ($name === '' || $email === '' || $whatsapp === '' || !is_email($email)) {
+        wp_safe_redirect($redirect);
+        exit;
+    }
+
+    $lead_id = wp_insert_post([
+        'post_type'   => 'vip_lead',
+        'post_status' => 'publish',
+        'post_title'  => sprintf('%s - %s', $name, $email),
+    ], true);
+
+    if (is_wp_error($lead_id)) {
+        wp_safe_redirect($redirect);
+        exit;
+    }
+
+    update_post_meta($lead_id, 'vip_name', $name);
+    update_post_meta($lead_id, 'vip_email', $email);
+    update_post_meta($lead_id, 'vip_whatsapp', $whatsapp);
+    update_post_meta($lead_id, 'vip_interest', $interest);
+    update_post_meta($lead_id, 'vip_source', $source);
+
+    wp_safe_redirect(home_url('/?alerta_vip=sucesso#alerta-vip'));
+    exit;
+}
+
+add_action('admin_post_nopriv_marchon_vip_alert_signup', 'marchon_handle_vip_alert_signup');
+add_action('admin_post_marchon_vip_alert_signup', 'marchon_handle_vip_alert_signup');
 
 function marchon_get_instagram_feed_shortcode(): string {
     if (shortcode_exists('instagram-feed')) {
@@ -607,74 +903,8 @@ add_shortcode('ultimos_imoveis', function($atts) {
     ob_start(); ?>
     <div class="imoveis-grid">
     <?php while ($query->have_posts()): $query->the_post();
-        $id       = get_the_ID();
-        $codigo   = get_field('codigo', $id);
-        $tipo     = get_field('tipo', $id);
-        $area     = get_field('area', $id);
-        $preco    = get_field('preco', $id);
-        $destaque = get_field('destaque', $id);
-        $instagram = get_field('link_instagram', $id);
-        $facebook  = get_field('link_facebook', $id);
-        $youtube   = get_field('link_youtube', $id);
-        $foto     = get_field('fotos', $id);
-        $foto_url = $foto ? $foto['url'] : '';
-        $tipos_label = ['terreno'=>'Terreno','casa'=>'Casa','apartamento'=>'Apartamento','comercial'=>'Comercial'];
-    ?>
-    <article class="card-imovel">
-        <div class="card-foto">
-            <?php if ($foto_url): ?>
-                <img src="<?php echo esc_url($foto_url); ?>" alt="<?php the_title(); ?>" loading="lazy">
-            <?php else: ?>
-                <div class="card-foto-placeholder">
-                    <svg viewBox="0 0 24 24" width="32" height="32" stroke="#c5baa8" fill="none" stroke-width="1">
-                        <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <span>Foto em breve</span>
-                </div>
-            <?php endif; ?>
-            <?php if ($tipo): ?>
-                <span class="card-tipo"><?php echo esc_html($tipos_label[$tipo] ?? $tipo); ?></span>
-            <?php endif; ?>
-            <?php if ($destaque): ?>
-                <span class="card-destaque">Destaque</span>
-            <?php endif; ?>
-        </div>
-        <div class="card-body">
-            <?php if ($codigo): ?>
-                <div class="card-codigo">Cód. <?php echo esc_html($codigo); ?></div>
-            <?php endif; ?>
-            <h3 class="card-titulo"><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h3>
-            <div class="card-resumo"><?php echo wp_trim_words(get_the_excerpt(), 20); ?></div>
-            <div class="card-info">
-                <?php if ($area): ?>
-                    <span class="card-area"><?php echo esc_html($area); ?></span>
-                <?php endif; ?>
-                <?php if ($preco): ?>
-                    <span class="card-preco"><?php echo esc_html($preco); ?></span>
-                <?php endif; ?>
-            </div>
-            <?php if ($instagram || $facebook || $youtube): ?>
-            <div class="card-redes">
-                <?php if ($instagram): ?>
-                <a href="<?php echo esc_url($instagram); ?>" target="_blank" class="card-rede" title="Instagram">
-                    <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-                </a>
-                <?php endif; ?>
-                <?php if ($facebook): ?>
-                <a href="<?php echo esc_url($facebook); ?>" target="_blank" class="card-rede" title="Facebook">
-                    <svg viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-                </a>
-                <?php endif; ?>
-                <?php if ($youtube): ?>
-                <a href="<?php echo esc_url($youtube); ?>" target="_blank" class="card-rede" title="YouTube">
-                    <svg viewBox="0 0 24 24"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>
-                </a>
-                <?php endif; ?>
-            </div>
-            <?php endif; ?>
-        </div>
-    </article>
-    <?php endwhile; wp_reset_postdata();
+        echo marchon_render_imovel_card(get_the_ID(), 'h3');
+    endwhile; wp_reset_postdata();
     return ob_get_clean();
 });
 
@@ -709,11 +939,7 @@ add_shortcode('banner_imoveis', function() {
         $foto = get_field('fotos');
         $slides[] = [
             'titulo'    => get_the_title(),
-            'resumo'    => wp_trim_words(get_the_excerpt(), 15),
-            'link'      => get_permalink(),
             'foto'      => $foto ? $foto['url'] : '',
-            'area'      => get_field('area'),
-            'preco'     => get_field('preco'),
         ];
     endwhile;
     wp_reset_postdata();
@@ -728,11 +954,7 @@ add_shortcode('banner_imoveis', function() {
         <?php endforeach; ?>
 
         <div class="banner-conteudo">
-            <div class="banner-badge" id="banner-badge">Lumiar · Nova Friburgo · RJ</div>
             <h1 class="banner-titulo" id="banner-titulo"><?php echo esc_html($slides[0]['titulo']); ?></h1>
-            <p class="banner-subtitulo" id="banner-subtitulo"><?php echo esc_html($slides[0]['resumo']); ?></p>
-            <a href="<?php echo esc_url($slides[0]['link']); ?>" class="banner-btn" id="banner-link">Ver imóvel</a>
-            <a href="https://wa.me/5522998121056" target="_blank" class="banner-btn-outline">Falar com Corretor</a>
         </div>
 
         <button class="banner-nav banner-prev" onclick="bannerNav(-1)" aria-label="Anterior">&#8249;</button>
@@ -760,8 +982,6 @@ add_shortcode('banner_imoveis', function() {
         slides[bannerAtual].classList.add('ativo');
         dots[bannerAtual].classList.add('ativo');
         document.getElementById('banner-titulo').textContent    = bannerSlides[bannerAtual].titulo;
-        document.getElementById('banner-subtitulo').textContent = bannerSlides[bannerAtual].resumo;
-        document.getElementById('banner-link').href             = bannerSlides[bannerAtual].link;
     }
     function bannerNav(dir) { clearInterval(bannerTimer); bannerAtualizar(bannerAtual + dir); bannerIniciar(); }
     function bannerIr(n)    { clearInterval(bannerTimer); bannerAtualizar(n); bannerIniciar(); }
@@ -831,7 +1051,13 @@ add_action('wp_footer', function() { ?>
 
 // ── BOTÃO WHATSAPP FLUTUANTE ────────────────────────────────────────────────
 add_action('wp_footer', function() { ?>
-    <a href="https://wa.me/5522998121056" target="_blank" class="whatsapp-float" aria-label="WhatsApp">
+    <?php if (is_singular('imoveis')) {
+        return;
+    } ?>
+    <a href="<?php echo esc_url(marchon_get_whatsapp_url([
+        'source' => 'botão flutuante do site',
+        'action' => 'falar com a equipe',
+    ])); ?>" target="_blank" rel="noopener noreferrer" class="whatsapp-float" aria-label="WhatsApp">
         <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     </a>
 <?php });
