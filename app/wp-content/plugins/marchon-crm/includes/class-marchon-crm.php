@@ -486,7 +486,7 @@ final class Marchon_CRM
 
                     <div class="mcrm-hero-actions">
                         <a class="mcrm-btn mcrm-btn-primary" href="<?php echo esc_url($url_cadastro); ?>">Novo cliente</a>
-                        <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(wp_logout_url($page_url)); ?>">Sair</a>
+                        <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">Sair</a>
                     </div>
                 </aside>
 
@@ -508,7 +508,7 @@ final class Marchon_CRM
                             </div>
                             <div class="mcrm-topbar-actions">
                                 <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_cadastro); ?>">Novo</a>
-                                <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(wp_logout_url($page_url)); ?>">Sair</a>
+                                <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(wp_logout_url(home_url('/'))); ?>">Sair</a>
                             </div>
                         </div>
                     </header>
