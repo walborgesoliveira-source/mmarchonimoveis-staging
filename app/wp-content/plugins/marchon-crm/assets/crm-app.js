@@ -116,9 +116,97 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
+  function escHtml(str) {
+    return (str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function bindQuickSearch() {
+    var input = document.querySelector('[data-mcrm-quick-search]');
+    if (!input || !window.mcrmData) return;
+
+    var form    = input.closest('.mcrm-topbar-search');
+    var dropdown = null;
+    var timer   = null;
+
+    function showDropdown(results) {
+      if (!dropdown) {
+        dropdown = document.createElement('div');
+        dropdown.className = 'mcrm-quick-results';
+        form.appendChild(dropdown);
+      }
+
+      dropdown.innerHTML = '';
+
+      if (!results.length) {
+        dropdown.innerHTML = '<p class="mcrm-quick-results-empty">Nenhum resultado encontrado.</p>';
+        return;
+      }
+
+      results.forEach(function (item) {
+        var a = document.createElement('a');
+        a.className = 'mcrm-quick-result-item';
+        a.href = item.link;
+        a.innerHTML =
+          '<div class="mcrm-quick-result-info">' +
+            '<span class="mcrm-quick-result-name">' + escHtml(item.name) + '</span>' +
+            '<span class="mcrm-quick-result-meta">' + escHtml(item.phone) + (item.status ? ' &middot; ' + escHtml(item.status) : '') + '</span>' +
+          '</div>' +
+          '<span class="mcrm-quick-result-arrow">&rarr;</span>';
+        dropdown.appendChild(a);
+      });
+    }
+
+    function hideDropdown() {
+      if (dropdown) {
+        dropdown.remove();
+        dropdown = null;
+      }
+    }
+
+    function doSearch(term) {
+      var body = new FormData();
+      body.append('action', 'mcrm_quick_search');
+      body.append('nonce', window.mcrmData.nonce);
+      body.append('term', term);
+
+      fetch(window.mcrmData.ajaxUrl, { method: 'POST', body: body })
+        .then(function (r) { return r.json(); })
+        .then(function (resp) {
+          if (resp && resp.success) showDropdown(resp.data.results);
+        })
+        .catch(function () {});
+    }
+
+    input.addEventListener('input', function () {
+      clearTimeout(timer);
+      var term = input.value.trim();
+      if (term.length < 2) { hideDropdown(); return; }
+      timer = setTimeout(function () { doSearch(term); }, 320);
+    });
+
+    input.addEventListener('focus', function () {
+      var term = input.value.trim();
+      if (term.length >= 2) doSearch(term);
+    });
+
+    document.addEventListener('click', function (e) {
+      if (dropdown && !form.contains(e.target)) hideDropdown();
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') hideDropdown();
+    });
+  }
+
   bindMask(cpfInputs, formatCpf);
   bindMask(phoneInputs, formatPhone);
   bindSectionNavigation();
+  bindQuickSearch();
+
+  var quickInput = document.querySelector('[data-mcrm-quick-search]');
+  if (quickInput && !quickInput.value) {
+    quickInput.focus();
+  }
 
   if (interestSelect && terrainBox) {
     interestSelect.addEventListener('change', syncTerrain);

@@ -77,6 +77,7 @@ final class Marchon_CRM
         add_action('manage_mcrm_client_posts_custom_column', [self::class, 'render_columns'], 10, 2);
         add_filter('login_redirect', [self::class, 'frontend_login_redirect'], 20, 3);
         add_shortcode('marchon_crm_app', [self::class, 'render_frontend_app']);
+        add_action('wp_ajax_mcrm_quick_search', [self::class, 'handle_ajax_quick_search']);
     }
 
     public static function register_post_type(): void
@@ -249,16 +250,21 @@ final class Marchon_CRM
             'marchon-crm-app',
             plugins_url('assets/crm-app.css', self::$plugin_file),
             [],
-            '1.0.0'
+            '0.4.0'
         );
 
         wp_enqueue_script(
             'marchon-crm-front',
             plugins_url('assets/crm-app.js', self::$plugin_file),
             [],
-            '1.0.0',
+            '0.4.0',
             true
         );
+
+        wp_localize_script('marchon-crm-front', 'mcrmData', [
+            'ajaxUrl' => admin_url('admin-ajax.php'),
+            'nonce'   => wp_create_nonce('mcrm_quick_search'),
+        ]);
     }
 
     public static function ensure_front_page(): void
@@ -482,7 +488,7 @@ final class Marchon_CRM
                             <strong>CRM Comercial</strong>
                         </div>
                         <form class="mcrm-topbar-search" method="get" action="<?php echo esc_url($page_url); ?>">
-                            <input type="text" name="mcrm_name" placeholder="Buscar por nome, CPF ou telefone" value="<?php echo esc_attr(isset($_GET['mcrm_name']) ? sanitize_text_field(wp_unslash($_GET['mcrm_name'])) : ''); ?>">
+                            <input type="text" name="mcrm_name" data-mcrm-quick-search placeholder="Buscar por nome, CPF ou telefone" value="<?php echo esc_attr(isset($_GET['mcrm_name']) ? sanitize_text_field(wp_unslash($_GET['mcrm_name'])) : ''); ?>" autocomplete="off" autofocus>
                             <?php if (isset($_GET['mcrm_interest_type'])) : ?><input type="hidden" name="mcrm_interest_type" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['mcrm_interest_type']))); ?>"><?php endif; ?>
                             <?php if (isset($_GET['mcrm_client_status'])) : ?><input type="hidden" name="mcrm_client_status" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['mcrm_client_status']))); ?>"><?php endif; ?>
                             <?php if (isset($_GET['mcrm_cpf'])) : ?><input type="hidden" name="mcrm_cpf" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['mcrm_cpf']))); ?>"><?php endif; ?>
@@ -569,8 +575,7 @@ final class Marchon_CRM
                                 <?php $client_values = self::get_meta_values($client->ID); ?>
                                 <article class="mcrm-client-card">
                                     <div class="mcrm-client-top">
-                                        <div class="mcrm-client-avatar" aria-hidden="true"><?php echo esc_html(mb_strtoupper(mb_substr(get_the_title($client->ID), 0, 1))); ?></div>
-                                        <div class="mcrm-client-info">
+                                        <div>
                                             <div class="mcrm-client-topline">
                                                 <span class="mcrm-status-badge mcrm-status-<?php echo esc_attr(self::status_class($client_values['_mcrm_client_status'])); ?>">
                                                     <?php echo esc_html(self::label_for(self::CLIENT_STATUSES, $client_values['_mcrm_client_status'])); ?>
@@ -926,133 +931,24 @@ final class Marchon_CRM
     {
         ob_start();
         ?>
-        <div class="mcrm-landing-shell">
-
-            <!-- ══ HERO ══════════════════════════════════════════ -->
-            <section class="mcrm-landing-hero">
-                <div class="mcrm-landing-hero-copy">
-                    <span class="mcrm-landing-eyebrow">Marchon CRM · Plataforma interna</span>
-                    <h1>A central comercial da<br>Marchon Imóveis.</h1>
-                    <p>Pipeline de leads, cadastro de clientes, relatórios e controle de carteira — tudo em uma interface dedicada, pensada para corretores.</p>
-                    <div class="mcrm-landing-hero-actions">
-                        <a href="#mcrm-acesso" class="mcrm-lbtn mcrm-lbtn-primary">Acessar a plataforma</a>
-                        <span class="mcrm-landing-restrict-badge">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                            Acesso restrito · Corretores credenciados
-                        </span>
-                    </div>
+        <section class="mcrm-login-shell">
+            <div class="mcrm-login-card">
+                <p class="mcrm-eyebrow">Marchon CRM</p>
+                <h1>Entrada segura para corretores.</h1>
+                <p>Use seu usuario do WordPress para acessar o CRM responsivo fora do painel administrativo.</p>
+                <div class="mcrm-login-form">
+                    <?php
+                    wp_login_form([
+                        'redirect' => self::get_frontend_page_url(),
+                        'label_username' => 'Usuario',
+                        'label_password' => 'Senha',
+                        'label_log_in' => 'Entrar no CRM',
+                        'remember' => true,
+                    ]);
+                    ?>
                 </div>
-                <div class="mcrm-landing-hero-visual" aria-hidden="true">
-                    <div class="mcrm-mockup">
-                        <img
-                            src="<?php echo esc_url(plugins_url('assets/crm-mockup.png', self::$plugin_file)); ?>"
-                            alt="Preview do Marchon CRM"
-                            class="mcrm-mockup-img"
-                            loading="eager"
-                            decoding="async"
-                        >
-                    </div>
-                </div>
-            </section>
-
-            <!-- ══ FEATURES ══════════════════════════════════════ -->
-            <section class="mcrm-landing-features">
-                <div class="mcrm-landing-features-inner">
-                    <div class="mcrm-landing-section-head">
-                        <span>O que está dentro</span>
-                        <h2>Tudo que um corretor precisa, sem depender do painel admin.</h2>
-                    </div>
-                    <div class="mcrm-landing-feat-grid">
-
-                        <div class="mcrm-feat-card">
-                            <div class="mcrm-feat-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                            </div>
-                            <h3>Gestão de clientes</h3>
-                            <p>Cadastre, edite e acompanhe cada lead com dados completos: CPF, telefone, região de interesse e faixa de valor.</p>
-                        </div>
-
-                        <div class="mcrm-feat-card">
-                            <div class="mcrm-feat-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                            </div>
-                            <h3>Pipeline comercial</h3>
-                            <p>Visualize o funil em tempo real — de lead novo até cliente convertido — com filtros por status, tipo e corretor.</p>
-                        </div>
-
-                        <div class="mcrm-feat-card">
-                            <div class="mcrm-feat-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                            </div>
-                            <h3>Interesse em terrenos</h3>
-                            <p>Campos dedicados para metragem, topografia, finalidade e condomínio — alinhado ao foco do mercado local.</p>
-                        </div>
-
-                        <div class="mcrm-feat-card">
-                            <div class="mcrm-feat-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                            </div>
-                            <h3>Relatórios e métricas</h3>
-                            <p>Distribuição por tipo de imóvel, regiões mais procuradas e faixas de valor — para embasar decisões comerciais.</p>
-                        </div>
-
-                        <div class="mcrm-feat-card">
-                            <div class="mcrm-feat-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                            </div>
-                            <h3>Busca avançada</h3>
-                            <p>Encontre qualquer cliente por nome, CPF, telefone, status ou tipo de interesse com filtros combinados.</p>
-                        </div>
-
-                        <div class="mcrm-feat-card">
-                            <div class="mcrm-feat-icon">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                            </div>
-                            <h3>Acesso seguro</h3>
-                            <p>Cada corretor vê somente sua carteira. Administradores têm visão completa do painel sem expor dados alheios.</p>
-                        </div>
-
-                    </div>
-                </div>
-            </section>
-
-            <!-- ══ GATE ═══════════════════════════════════════════ -->
-            <section class="mcrm-landing-gate" id="mcrm-acesso">
-                <div class="mcrm-landing-gate-inner">
-
-                    <div class="mcrm-landing-gate-copy">
-                        <span class="mcrm-landing-eyebrow" style="color:rgba(255,255,255,0.55);">Área restrita</span>
-                        <h2>Exclusivo para a equipe Marchon.</h2>
-                        <p>Esta plataforma é de uso interno. O acesso é concedido apenas a profissionais cadastrados e validados pela gestão.</p>
-                        <ul class="mcrm-landing-checklist">
-                            <li>Corretores credenciados pela Marchon</li>
-                            <li>Gestores e administradores</li>
-                            <li>Equipe comercial autorizada</li>
-                        </ul>
-                        <p class="mcrm-landing-gate-note">Não possui acesso? Entre em contato com a gestão para solicitar credenciais.</p>
-                    </div>
-
-                    <div class="mcrm-login-card">
-                        <p class="mcrm-eyebrow">Entrar na plataforma</p>
-                        <h1>Bem-vindo de volta.</h1>
-                        <p>Use suas credenciais para acessar o painel comercial.</p>
-                        <div class="mcrm-login-form">
-                            <?php
-                            wp_login_form([
-                                'redirect'       => self::get_frontend_page_url(),
-                                'label_username' => 'Usuário',
-                                'label_password' => 'Senha',
-                                'label_log_in'   => 'Entrar no CRM',
-                                'remember'       => true,
-                            ]);
-                            ?>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-
-        </div><!-- /.mcrm-landing-shell -->
+            </div>
+        </section>
         <?php
 
         return (string) ob_get_clean();
@@ -1708,5 +1604,80 @@ final class Marchon_CRM
             <p style="font-size:32px;margin:0;"><strong><?php echo esc_html($value); ?></strong></p>
         </div>
         <?php
+    }
+
+    public static function handle_ajax_quick_search(): void
+    {
+        if (!check_ajax_referer('mcrm_quick_search', 'nonce', false)) {
+            wp_send_json_error(null, 403);
+        }
+
+        if (!self::current_user_can_access_crm()) {
+            wp_send_json_error(null, 403);
+        }
+
+        $term = isset($_POST['term']) ? sanitize_text_field(wp_unslash($_POST['term'])) : '';
+
+        if (strlen($term) < 2) {
+            wp_send_json_success(['results' => []]);
+        }
+
+        $scope = self::get_scope_meta_query();
+        $ids   = [];
+
+        $ids = array_merge($ids, (array) get_posts([
+            'post_type'      => 'mcrm_client',
+            'post_status'    => 'any',
+            'posts_per_page' => -1,
+            'fields'         => 'ids',
+            's'              => $term,
+            'meta_query'     => $scope,
+        ]));
+
+        $cpf = self::sanitize_cpf($term);
+        if ($cpf !== '') {
+            $ids = array_merge($ids, (array) get_posts([
+                'post_type'      => 'mcrm_client',
+                'post_status'    => 'any',
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+                'meta_query'     => array_merge($scope, [[
+                    'key'     => '_mcrm_cpf',
+                    'value'   => $cpf,
+                    'compare' => 'LIKE',
+                ]]),
+            ]));
+        }
+
+        $phone = self::sanitize_phone($term);
+        if ($phone !== '') {
+            $ids = array_merge($ids, (array) get_posts([
+                'post_type'      => 'mcrm_client',
+                'post_status'    => 'any',
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+                'meta_query'     => array_merge($scope, [[
+                    'key'     => '_mcrm_phone',
+                    'value'   => $phone,
+                    'compare' => 'LIKE',
+                ]]),
+            ]));
+        }
+
+        $ids      = array_values(array_unique($ids));
+        $page_url = self::get_frontend_page_url();
+        $results  = [];
+
+        foreach (array_slice($ids, 0, 8) as $post_id) {
+            $status  = (string) get_post_meta($post_id, '_mcrm_client_status', true);
+            $results[] = [
+                'name'   => get_the_title($post_id),
+                'phone'  => (string) get_post_meta($post_id, '_mcrm_phone', true),
+                'status' => self::CLIENT_STATUSES[$status] ?? $status,
+                'link'   => add_query_arg('client_id', $post_id, $page_url),
+            ];
+        }
+
+        wp_send_json_success(['results' => $results]);
     }
 }
