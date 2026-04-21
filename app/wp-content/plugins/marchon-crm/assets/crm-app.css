@@ -345,16 +345,22 @@
 }
 
 .mcrm-login-card h1 {
-  margin: 0 0 0.5rem;
-  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
-  line-height: 1.1;
+  margin: 0 0 0.35rem;
+  font-size: 1.35rem;
+  line-height: 1.15;
 }
 
-.mcrm-hero-copy,
-.mcrm-login-card p {
+.mcrm-hero-copy {
   max-width: 58ch;
   font-size: 1rem;
   color: var(--mcrm-muted);
+}
+
+.mcrm-login-card p {
+  max-width: 58ch;
+  font-size: 0.88rem;
+  color: var(--mcrm-muted);
+  margin: 0 0 0.75rem;
 }
 
 .mcrm-hero-badges {
@@ -936,12 +942,12 @@
   display: grid;
   min-height: auto;
   place-items: center;
-  padding: 3rem 1.25rem;
+  padding: 1.5rem 1.25rem;
 }
 
 .mcrm-login-card {
-  width: min(100%, 480px);
-  padding: 2rem 2.25rem;
+  width: min(100%, 400px);
+  padding: 1.5rem 1.75rem;
 }
 
 .mcrm-login-form form {
