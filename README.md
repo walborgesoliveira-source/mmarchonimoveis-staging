@@ -58,6 +58,29 @@ git pull
 docker compose up -d
 ```
 
+## Operacao
+
+Subir ou recriar a stack:
+
+```bash
+cd /root/mmarchonimoveis-staging
+docker compose up -d
+```
+
+Gerar backup do banco do staging em `exports/`:
+
+```bash
+cd /root/mmarchonimoveis-staging
+./scripts/backup.sh
+```
+
+Checar containers e cabecalhos HTTP do staging local e publico:
+
+```bash
+cd /root/mmarchonimoveis-staging
+./scripts/check-staging.sh
+```
+
 ## Regras
 
 - Nunca editar produção diretamente
