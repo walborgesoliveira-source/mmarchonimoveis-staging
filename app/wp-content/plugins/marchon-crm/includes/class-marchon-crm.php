@@ -934,8 +934,7 @@ final class Marchon_CRM
         <section class="mcrm-login-shell">
             <div class="mcrm-login-card">
                 <p class="mcrm-eyebrow">Marchon CRM</p>
-                <h1>Entrada segura para corretores.</h1>
-                <p>Use seu usuario do WordPress para acessar o CRM responsivo fora do painel administrativo.</p>
+                <h1>Entrada para corretores cadastrados no Marchon CRM.</h1>
                 <div class="mcrm-login-form">
                     <?php
                     wp_login_form([
