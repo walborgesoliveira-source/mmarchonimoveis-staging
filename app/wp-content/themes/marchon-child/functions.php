@@ -48,6 +48,27 @@ add_action('after_setup_theme', function() {
     ]);
 });
 
+// ── PORTAL DO CORRETOR NO MENU PRINCIPAL ───────────────────────────────────
+add_filter('wp_nav_menu_items', function(string $items, object $args): string {
+    if (($args->theme_location ?? '') !== 'menu-principal') {
+        return $items;
+    }
+
+    $url   = home_url('/marchon-crm/');
+    $label = 'Portal do Corretor';
+    $class = 'menu-item menu-item-portal-corretor';
+
+    if (is_page('marchon-crm')) {
+        $class .= ' current-menu-item';
+    }
+
+    $items .= '<li class="' . esc_attr($class) . '">'
+            . '<a href="' . esc_url($url) . '">' . esc_html($label) . '</a>'
+            . '</li>';
+
+    return $items;
+}, 10, 2);
+
 // ── PAPÉIS E CAPACIDADES: IMÓVEIS ──────────────────────────────────────────
 function marchon_get_imoveis_capabilities(): array {
     return [

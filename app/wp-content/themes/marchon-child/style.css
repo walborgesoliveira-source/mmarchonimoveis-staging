@@ -185,6 +185,30 @@ a:hover { color: var(--verde-claro); }
   transform: scaleX(1);
 }
 
+/* ── PORTAL DO CORRETOR ────────────────────────────── */
+.menu-item-portal-corretor > a {
+  color: var(--verde) !important;
+  font-weight: 700 !important;
+}
+
+.menu-item-portal-corretor > a::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--verde);
+  margin-right: 0.45rem;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.menu-item-portal-corretor > a:hover::before,
+.menu-item-portal-corretor.current-menu-item > a::before {
+  opacity: 1;
+}
+
 .header-login-btn {
   display: inline-flex;
   align-items: center;

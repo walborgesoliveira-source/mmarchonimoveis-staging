@@ -1,0 +1,283 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 750" width="1200" height="750" font-family="-apple-system, 'Segoe UI', Roboto, sans-serif">
+  <rect width="1200" height="750" rx="18" fill="#0B1220"/>
+
+  <rect x="0" y="0" width="1200" height="44" rx="18" fill="#0E1627"/>
+  <rect x="0" y="24" width="1200" height="20" fill="#0E1627"/>
+  <circle cx="24" cy="22" r="6" fill="#FF5F57"/>
+  <circle cx="44" cy="22" r="6" fill="#FEBC2E"/>
+  <circle cx="64" cy="22" r="6" fill="#28C840"/>
+  <text x="600" y="27" text-anchor="middle" font-size="12" fill="#4A5A75" font-weight="500">crm.marchonimoveis.com.br</text>
+
+  <rect x="0" y="44" width="220" height="706" fill="#0A111E"/>
+
+  <circle cx="36" cy="78" r="14" fill="#10B981"/>
+  <text x="36" y="83" text-anchor="middle" font-size="14" font-weight="700" fill="#041910">M</text>
+  <text x="60" y="76" font-size="14" font-weight="600" fill="#E5E7EB">Marchon</text>
+  <text x="60" y="90" font-size="10" font-weight="500" fill="#10B981" letter-spacing="0.5">CRM INTERNO</text>
+
+  <rect x="20" y="112" width="180" height="32" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+  <circle cx="34" cy="128" r="5" fill="none" stroke="#4A5A75" stroke-width="1.5"/>
+  <line x1="38" y1="132" x2="42" y2="136" stroke="#4A5A75" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="52" y="132" font-size="12" fill="#4A5A75">Buscar lead, imóvel...</text>
+
+  <text x="30" y="172" font-size="10" font-weight="600" fill="#4A5A75" letter-spacing="1">PRINCIPAL</text>
+
+  <rect x="14" y="184" width="192" height="36" rx="8" fill="#10B981"/>
+  <rect x="24" y="195" width="14" height="14" rx="2" fill="none" stroke="#041910" stroke-width="1.8"/>
+  <line x1="24" y1="202" x2="38" y2="202" stroke="#041910" stroke-width="1.8"/>
+  <line x1="31" y1="195" x2="31" y2="209" stroke="#041910" stroke-width="1.8"/>
+  <text x="48" y="207" font-size="13" font-weight="600" fill="#041910">Dashboard</text>
+
+  <g>
+    <rect x="24" y="230" width="4" height="14" rx="1" fill="#4A5A75"/>
+    <rect x="31" y="226" width="4" height="18" rx="1" fill="#4A5A75"/>
+    <rect x="38" y="232" width="4" height="12" rx="1" fill="#4A5A75"/>
+    <text x="48" y="243" font-size="13" font-weight="500" fill="#9CA3AF">Pipeline de Leads</text>
+    <rect x="176" y="234" width="22" height="16" rx="8" fill="#10B981"/>
+    <text x="187" y="245" text-anchor="middle" font-size="10" font-weight="700" fill="#041910">24</text>
+  </g>
+
+  <g>
+    <circle cx="31" cy="276" r="5" fill="none" stroke="#4A5A75" stroke-width="1.5"/>
+    <path d="M 23 288 Q 31 280 39 288" fill="none" stroke="#4A5A75" stroke-width="1.5"/>
+    <text x="48" y="282" font-size="13" font-weight="500" fill="#9CA3AF">Clientes</text>
+  </g>
+
+  <g>
+    <path d="M 24 316 L 31 310 L 38 316 L 38 324 L 24 324 Z" fill="none" stroke="#4A5A75" stroke-width="1.5" stroke-linejoin="round"/>
+    <text x="48" y="322" font-size="13" font-weight="500" fill="#9CA3AF">Imóveis</text>
+  </g>
+
+  <g>
+    <rect x="24" y="347" width="14" height="14" rx="2" fill="none" stroke="#4A5A75" stroke-width="1.5"/>
+    <line x1="24" y1="352" x2="38" y2="352" stroke="#4A5A75" stroke-width="1.5"/>
+    <text x="48" y="360" font-size="13" font-weight="500" fill="#9CA3AF">Agenda</text>
+  </g>
+
+  <g>
+    <line x1="24" y1="397" x2="24" y2="384" stroke="#4A5A75" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="30" y1="397" x2="30" y2="378" stroke="#4A5A75" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="36" y1="397" x2="36" y2="388" stroke="#4A5A75" stroke-width="1.5" stroke-linecap="round"/>
+    <text x="48" y="396" font-size="13" font-weight="500" fill="#9CA3AF">Relatórios</text>
+  </g>
+
+  <text x="30" y="438" font-size="10" font-weight="600" fill="#4A5A75" letter-spacing="1">CARTEIRA</text>
+
+  <g>
+    <rect x="24" y="450" width="14" height="10" rx="2" fill="none" stroke="#4A5A75" stroke-width="1.5"/>
+    <rect x="27" y="446" width="8" height="4" rx="1" fill="none" stroke="#4A5A75" stroke-width="1.5"/>
+    <text x="48" y="460" font-size="13" font-weight="500" fill="#9CA3AF">Meus contratos</text>
+  </g>
+
+  <g>
+    <circle cx="31" cy="492" r="7" fill="none" stroke="#4A5A75" stroke-width="1.5"/>
+    <text x="31" y="496" text-anchor="middle" font-size="9" font-weight="700" fill="#4A5A75">$</text>
+    <text x="48" y="497" font-size="13" font-weight="500" fill="#9CA3AF">Comissões</text>
+  </g>
+
+  <rect x="14" y="690" width="192" height="48" rx="10" fill="#141E31"/>
+  <circle cx="34" cy="714" r="14" fill="#10B981"/>
+  <text x="34" y="719" text-anchor="middle" font-size="12" font-weight="700" fill="#041910">RS</text>
+  <text x="56" y="710" font-size="12" font-weight="600" fill="#E5E7EB">Rafael Silva</text>
+  <text x="56" y="724" font-size="10" fill="#4A5A75">Corretor · CRECI 12345</text>
+
+  <text x="248" y="78" font-size="11" fill="#4A5A75">Início / Dashboard</text>
+  <text x="248" y="108" font-size="24" font-weight="700" fill="#F3F4F6">Olá, Rafael</text>
+  <text x="368" y="108" font-size="22" fill="#F3F4F6">👋</text>
+  <text x="248" y="130" font-size="13" fill="#9CA3AF">Aqui está o resumo da sua carteira comercial.</text>
+
+  <rect x="900" y="82" width="130" height="36" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+  <circle cx="916" cy="100" r="5" fill="none" stroke="#9CA3AF" stroke-width="1.5"/>
+  <line x1="920" y1="104" x2="924" y2="108" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round"/>
+  <text x="930" y="105" font-size="12" fill="#9CA3AF">Buscar rápido</text>
+
+  <rect x="1042" y="82" width="36" height="36" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+  <path d="M 1055 96 Q 1055 90 1060 90 Q 1065 90 1065 96 L 1065 104 L 1067 106 L 1053 106 L 1055 104 Z" fill="none" stroke="#9CA3AF" stroke-width="1.5" stroke-linejoin="round"/>
+  <circle cx="1068" cy="92" r="3" fill="#EF4444"/>
+
+  <rect x="1090" y="82" width="90" height="36" rx="8" fill="#10B981"/>
+  <line x1="1105" y1="100" x2="1113" y2="100" stroke="#041910" stroke-width="2" stroke-linecap="round"/>
+  <line x1="1109" y1="96" x2="1109" y2="104" stroke="#041910" stroke-width="2" stroke-linecap="round"/>
+  <text x="1142" y="105" text-anchor="middle" font-size="12" font-weight="600" fill="#041910">Novo lead</text>
+
+  <rect x="248" y="156" width="220" height="110" rx="12" fill="#111A2C" stroke="#1E2A42" stroke-width="1"/>
+  <text x="268" y="182" font-size="11" font-weight="500" fill="#9CA3AF" letter-spacing="0.5">LEADS ATIVOS</text>
+  <rect x="420" y="170" width="36" height="20" rx="6" fill="#10B98133"/>
+  <text x="438" y="184" text-anchor="middle" font-size="10" font-weight="700" fill="#10B981">+12%</text>
+  <text x="268" y="222" font-size="32" font-weight="700" fill="#F3F4F6">47</text>
+  <text x="268" y="245" font-size="11" fill="#4A5A75">vs. 42 na semana anterior</text>
+
+  <rect x="480" y="156" width="220" height="110" rx="12" fill="#111A2C" stroke="#1E2A42" stroke-width="1"/>
+  <text x="500" y="182" font-size="11" font-weight="500" fill="#9CA3AF" letter-spacing="0.5">VISITAS AGENDADAS</text>
+  <rect x="652" y="170" width="36" height="20" rx="6" fill="#F59E0B33"/>
+  <text x="670" y="184" text-anchor="middle" font-size="10" font-weight="700" fill="#F59E0B">+3%</text>
+  <text x="500" y="222" font-size="32" font-weight="700" fill="#F3F4F6">12</text>
+  <text x="500" y="245" font-size="11" fill="#4A5A75">esta semana</text>
+
+  <rect x="712" y="156" width="220" height="110" rx="12" fill="#111A2C" stroke="#1E2A42" stroke-width="1"/>
+  <text x="732" y="182" font-size="11" font-weight="500" fill="#9CA3AF" letter-spacing="0.5">PROPOSTAS ATIVAS</text>
+  <rect x="884" y="170" width="36" height="20" rx="6" fill="#10B98133"/>
+  <text x="902" y="184" text-anchor="middle" font-size="10" font-weight="700" fill="#10B981">+5%</text>
+  <text x="732" y="222" font-size="32" font-weight="700" fill="#F3F4F6">8</text>
+  <text x="732" y="245" font-size="11" fill="#4A5A75">R$ 4,2M em valor total</text>
+
+  <rect x="944" y="156" width="236" height="110" rx="12" fill="#111A2C" stroke="#1E2A42" stroke-width="1"/>
+  <text x="964" y="182" font-size="11" font-weight="500" fill="#9CA3AF" letter-spacing="0.5">FECHAMENTOS NO MÊS</text>
+  <rect x="1132" y="170" width="36" height="20" rx="6" fill="#10B98133"/>
+  <text x="1150" y="184" text-anchor="middle" font-size="10" font-weight="700" fill="#10B981">+18%</text>
+  <text x="964" y="222" font-size="32" font-weight="700" fill="#F3F4F6">3</text>
+  <text x="964" y="245" font-size="11" fill="#4A5A75">Meta: 5 · 60% atingida</text>
+
+  <text x="248" y="304" font-size="16" font-weight="600" fill="#F3F4F6">Pipeline de Leads</text>
+  <text x="248" y="322" font-size="12" fill="#9CA3AF">Arraste os cards para atualizar o estágio</text>
+
+  <rect x="1070" y="294" width="110" height="32" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+  <text x="1086" y="314" font-size="12" fill="#9CA3AF">Últimos 30 dias</text>
+  <path d="M 1158 308 L 1163 313 L 1168 308" fill="none" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g>
+    <rect x="248" y="342" width="220" height="372" rx="12" fill="#0E1627" stroke="#1E2A42" stroke-width="1"/>
+    <circle cx="266" cy="362" r="4" fill="#6366F1"/>
+    <text x="278" y="366" font-size="12" font-weight="600" fill="#F3F4F6">Novo lead</text>
+    <text x="448" y="366" text-anchor="end" font-size="11" font-weight="600" fill="#9CA3AF">14</text>
+
+    <rect x="260" y="380" width="196" height="92" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+    <text x="272" y="400" font-size="12" font-weight="600" fill="#F3F4F6">Ana Beatriz Lima</text>
+    <text x="272" y="416" font-size="10" fill="#9CA3AF">Apto 3 qtos · Leblon</text>
+    <text x="272" y="434" font-size="11" font-weight="700" fill="#10B981">R$ 2,8M</text>
+    <rect x="272" y="444" width="40" height="18" rx="4" fill="#312E81"/>
+    <text x="292" y="457" text-anchor="middle" font-size="9" font-weight="600" fill="#A5B4FC">Site</text>
+    <circle cx="438" cy="453" r="10" fill="#10B981"/>
+    <text x="438" y="457" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">RS</text>
+
+    <rect x="260" y="484" width="196" height="92" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+    <text x="272" y="504" font-size="12" font-weight="600" fill="#F3F4F6">Marcos Pereira</text>
+    <text x="272" y="520" font-size="10" fill="#9CA3AF">Cobertura · Ipanema</text>
+    <text x="272" y="538" font-size="11" font-weight="700" fill="#10B981">R$ 5,5M</text>
+    <rect x="272" y="548" width="62" height="18" rx="4" fill="#064E3B"/>
+    <text x="303" y="561" text-anchor="middle" font-size="9" font-weight="600" fill="#6EE7B7">Indicação</text>
+    <circle cx="438" cy="557" r="10" fill="#F59E0B"/>
+    <text x="438" y="561" text-anchor="middle" font-size="9" font-weight="700" fill="#422006">JM</text>
+
+    <rect x="260" y="588" width="196" height="92" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+    <text x="272" y="608" font-size="12" font-weight="600" fill="#F3F4F6">Juliana Castro</text>
+    <text x="272" y="624" font-size="10" fill="#9CA3AF">Casa · Barra da Tijuca</text>
+    <text x="272" y="642" font-size="11" font-weight="700" fill="#10B981">R$ 3,1M</text>
+    <rect x="272" y="652" width="62" height="18" rx="4" fill="#831843"/>
+    <text x="303" y="665" text-anchor="middle" font-size="9" font-weight="600" fill="#F9A8D4">Instagram</text>
+    <circle cx="438" cy="661" r="10" fill="#10B981"/>
+    <text x="438" y="665" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">RS</text>
+
+    <rect x="260" y="692" width="196" height="16" rx="4" fill="#141E31" fill-opacity="0.5" stroke="#1E2A42" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="358" y="704" text-anchor="middle" font-size="10" fill="#4A5A75">+ 11 leads</text>
+  </g>
+
+  <g>
+    <rect x="480" y="342" width="220" height="372" rx="12" fill="#0E1627" stroke="#1E2A42" stroke-width="1"/>
+    <circle cx="498" cy="362" r="4" fill="#F59E0B"/>
+    <text x="510" y="366" font-size="12" font-weight="600" fill="#F3F4F6">Qualificado</text>
+    <text x="680" y="366" text-anchor="end" font-size="11" font-weight="600" fill="#9CA3AF">9</text>
+
+    <rect x="492" y="380" width="196" height="92" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+    <text x="504" y="400" font-size="12" font-weight="600" fill="#F3F4F6">Ricardo Almeida</text>
+    <text x="504" y="416" font-size="10" fill="#9CA3AF">Sala comercial · Centro</text>
+    <text x="504" y="434" font-size="11" font-weight="700" fill="#10B981">R$ 1,4M</text>
+    <rect x="504" y="444" width="80" height="18" rx="4" fill="#1E3A8A"/>
+    <text x="544" y="457" text-anchor="middle" font-size="9" font-weight="600" fill="#93C5FD">Visita marcada</text>
+    <circle cx="670" cy="453" r="10" fill="#10B981"/>
+    <text x="670" y="457" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">RS</text>
+
+    <rect x="492" y="484" width="196" height="92" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+    <text x="504" y="504" font-size="12" font-weight="600" fill="#F3F4F6">Fernanda Souza</text>
+    <text x="504" y="520" font-size="10" fill="#9CA3AF">Apto 2 qtos · Botafogo</text>
+    <text x="504" y="538" font-size="11" font-weight="700" fill="#10B981">R$ 980K</text>
+    <rect x="504" y="548" width="72" height="18" rx="4" fill="#78350F"/>
+    <text x="540" y="561" text-anchor="middle" font-size="9" font-weight="600" fill="#FCD34D">Aguardando</text>
+    <circle cx="670" cy="557" r="10" fill="#10B981"/>
+    <text x="670" y="561" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">RS</text>
+
+    <rect x="492" y="588" width="196" height="92" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+    <text x="504" y="608" font-size="12" font-weight="600" fill="#F3F4F6">Pedro Henrique</text>
+    <text x="504" y="624" font-size="10" fill="#9CA3AF">Terreno · Recreio</text>
+    <text x="504" y="642" font-size="11" font-weight="700" fill="#10B981">R$ 850K</text>
+    <rect x="504" y="652" width="80" height="18" rx="4" fill="#1E3A8A"/>
+    <text x="544" y="665" text-anchor="middle" font-size="9" font-weight="600" fill="#93C5FD">Visita marcada</text>
+    <circle cx="670" cy="661" r="10" fill="#10B981"/>
+    <text x="670" y="665" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">RS</text>
+
+    <rect x="492" y="692" width="196" height="16" rx="4" fill="#141E31" fill-opacity="0.5" stroke="#1E2A42" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="590" y="704" text-anchor="middle" font-size="10" fill="#4A5A75">+ 6 leads</text>
+  </g>
+
+  <g>
+    <rect x="712" y="342" width="220" height="372" rx="12" fill="#0E1627" stroke="#1E2A42" stroke-width="1"/>
+    <circle cx="730" cy="362" r="4" fill="#3B82F6"/>
+    <text x="742" y="366" font-size="12" font-weight="600" fill="#F3F4F6">Em negociação</text>
+    <text x="912" y="366" text-anchor="end" font-size="11" font-weight="600" fill="#9CA3AF">8</text>
+
+    <rect x="724" y="380" width="196" height="92" rx="8" fill="#141E31" stroke="#10B981" stroke-width="1.5"/>
+    <text x="736" y="400" font-size="12" font-weight="600" fill="#F3F4F6">Camila Rodrigues</text>
+    <text x="736" y="416" font-size="10" fill="#9CA3AF">Apto 4 qtos · Lagoa</text>
+    <text x="736" y="434" font-size="11" font-weight="700" fill="#10B981">R$ 4,2M</text>
+    <rect x="736" y="444" width="86" height="18" rx="4" fill="#064E3B"/>
+    <text x="779" y="457" text-anchor="middle" font-size="9" font-weight="600" fill="#6EE7B7">Proposta enviada</text>
+    <circle cx="902" cy="453" r="10" fill="#10B981"/>
+    <text x="902" y="457" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">RS</text>
+
+    <rect x="724" y="484" width="196" height="92" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+    <text x="736" y="504" font-size="12" font-weight="600" fill="#F3F4F6">Bruno Oliveira</text>
+    <text x="736" y="520" font-size="10" fill="#9CA3AF">Cobertura · Copacabana</text>
+    <text x="736" y="538" font-size="11" font-weight="700" fill="#10B981">R$ 6,8M</text>
+    <rect x="736" y="548" width="80" height="18" rx="4" fill="#312E81"/>
+    <text x="776" y="561" text-anchor="middle" font-size="9" font-weight="600" fill="#A5B4FC">Contraproposta</text>
+    <circle cx="902" cy="557" r="10" fill="#10B981"/>
+    <text x="902" y="561" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">RS</text>
+
+    <rect x="724" y="588" width="196" height="92" rx="8" fill="#141E31" stroke="#1E2A42" stroke-width="1"/>
+    <text x="736" y="608" font-size="12" font-weight="600" fill="#F3F4F6">Tatiana Vieira</text>
+    <text x="736" y="624" font-size="10" fill="#9CA3AF">Casa · Jardim Botânico</text>
+    <text x="736" y="642" font-size="11" font-weight="700" fill="#10B981">R$ 5,1M</text>
+    <rect x="736" y="652" width="86" height="18" rx="4" fill="#064E3B"/>
+    <text x="779" y="665" text-anchor="middle" font-size="9" font-weight="600" fill="#6EE7B7">Proposta enviada</text>
+    <circle cx="902" cy="661" r="10" fill="#10B981"/>
+    <text x="902" y="665" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">RS</text>
+
+    <rect x="724" y="692" width="196" height="16" rx="4" fill="#141E31" fill-opacity="0.5" stroke="#1E2A42" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="822" y="704" text-anchor="middle" font-size="10" fill="#4A5A75">+ 5 leads</text>
+  </g>
+
+  <g>
+    <rect x="944" y="342" width="236" height="372" rx="12" fill="#0E1627" stroke="#1E2A42" stroke-width="1"/>
+    <circle cx="962" cy="362" r="4" fill="#10B981"/>
+    <text x="974" y="366" font-size="12" font-weight="600" fill="#F3F4F6">Fechado</text>
+    <text x="1160" y="366" text-anchor="end" font-size="11" font-weight="600" fill="#9CA3AF">3</text>
+
+    <rect x="956" y="380" width="212" height="92" rx="8" fill="#141E31" stroke="#10B98155" stroke-width="1"/>
+    <text x="968" y="400" font-size="12" font-weight="600" fill="#F3F4F6">Luiza Monteiro</text>
+    <text x="968" y="416" font-size="10" fill="#9CA3AF">Apto 3 qtos · Flamengo</text>
+    <text x="968" y="434" font-size="11" font-weight="700" fill="#10B981">R$ 2,1M ✓</text>
+    <rect x="968" y="444" width="100" height="18" rx="4" fill="#10B981"/>
+    <text x="1018" y="457" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">Contrato assinado</text>
+    <circle cx="1150" cy="453" r="10" fill="#10B981"/>
+    <text x="1150" y="457" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">RS</text>
+
+    <rect x="956" y="484" width="212" height="92" rx="8" fill="#141E31" stroke="#10B98155" stroke-width="1"/>
+    <text x="968" y="504" font-size="12" font-weight="600" fill="#F3F4F6">Gabriel Santos</text>
+    <text x="968" y="520" font-size="10" fill="#9CA3AF">Sala comercial · Barra</text>
+    <text x="968" y="538" font-size="11" font-weight="700" fill="#10B981">R$ 1,8M ✓</text>
+    <rect x="968" y="548" width="100" height="18" rx="4" fill="#10B981"/>
+    <text x="1018" y="561" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">Contrato assinado</text>
+    <circle cx="1150" cy="557" r="10" fill="#10B981"/>
+    <text x="1150" y="561" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">RS</text>
+
+    <rect x="956" y="588" width="212" height="92" rx="8" fill="#141E31" stroke="#10B98155" stroke-width="1"/>
+    <text x="968" y="608" font-size="12" font-weight="600" fill="#F3F4F6">Helena Campos</text>
+    <text x="968" y="624" font-size="10" fill="#9CA3AF">Cobertura · Leblon</text>
+    <text x="968" y="642" font-size="11" font-weight="700" fill="#10B981">R$ 7,3M ✓</text>
+    <rect x="968" y="652" width="100" height="18" rx="4" fill="#10B981"/>
+    <text x="1018" y="665" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">Contrato assinado</text>
+    <circle cx="1150" cy="661" r="10" fill="#10B981"/>
+    <text x="1150" y="665" text-anchor="middle" font-size="9" font-weight="700" fill="#041910">RS</text>
+  </g>
+
+</svg>
