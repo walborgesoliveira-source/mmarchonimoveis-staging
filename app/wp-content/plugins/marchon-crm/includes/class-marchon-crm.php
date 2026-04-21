@@ -436,6 +436,7 @@ final class Marchon_CRM
         }
 
         $page_url = self::get_frontend_page_url();
+        $view = isset($_GET['mcrm_view']) ? sanitize_key(wp_unslash($_GET['mcrm_view'])) : '';
         $editing_id = isset($_GET['client_id']) ? absint($_GET['client_id']) : 0;
         $editing_post = $editing_id > 0 && self::user_can_access_client($editing_id) ? get_post($editing_id) : null;
         $values = $editing_post instanceof \WP_Post ? self::get_meta_values($editing_post->ID) : self::get_empty_front_values();
@@ -512,9 +513,9 @@ final class Marchon_CRM
                     <?php self::render_front_notice($notice); ?>
 
                     <div class="mcrm-stat-grid">
-                        <?php self::render_front_stat('Clientes visiveis', (string) self::count_clients()); ?>
-                        <?php self::render_front_stat('Novos leads', (string) self::count_by_meta('_mcrm_client_status', 'novo')); ?>
-                        <?php self::render_front_stat('Interesse em terreno', (string) self::count_by_meta('_mcrm_interest_type', 'terreno')); ?>
+                        <?php self::render_front_stat('Clientes visiveis', (string) self::count_clients(), add_query_arg('mcrm_view', 'clientes', $page_url)); ?>
+                        <?php self::render_front_stat('Novos leads', (string) self::count_by_meta('_mcrm_client_status', 'novo'), add_query_arg(['mcrm_view' => 'clientes', 'mcrm_client_status' => 'novo'], $page_url)); ?>
+                        <?php self::render_front_stat('Interesse em terreno', (string) self::count_by_meta('_mcrm_interest_type', 'terreno'), add_query_arg(['mcrm_view' => 'clientes', 'mcrm_interest_type' => 'terreno'], $page_url)); ?>
                         <?php self::render_front_stat('Corretor logado', $current_user->display_name ?: 'Usuario'); ?>
                     </div>
 
@@ -539,6 +540,9 @@ final class Marchon_CRM
                         </section>
                     </div>
 
+                    <?php if ($view === 'clientes') : ?>
+                    <?php self::render_clients_table($clients, $page_url); ?>
+                    <?php else : ?>
                     <div class="mcrm-workspace">
                 <div class="mcrm-panel mcrm-panel-list" id="mcrm-clients">
                     <div class="mcrm-panel-head">
@@ -668,6 +672,7 @@ final class Marchon_CRM
                     </form>
                 </div>
             </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </section>
@@ -1275,9 +1280,70 @@ final class Marchon_CRM
         <?php
     }
 
-    private static function render_front_stat(string $title, string $value): void
+    private static function render_front_stat(string $title, string $value, string $link = ''): void
     {
-        echo '<article class="mcrm-stat-card"><span>' . esc_html($title) . '</span><strong>' . esc_html($value) . '</strong></article>';
+        if ($link !== '') {
+            echo '<a href="' . esc_url($link) . '" class="mcrm-stat-card mcrm-stat-card-link"><span>' . esc_html($title) . '</span><strong>' . esc_html($value) . '</strong></a>';
+        } else {
+            echo '<article class="mcrm-stat-card"><span>' . esc_html($title) . '</span><strong>' . esc_html($value) . '</strong></article>';
+        }
+    }
+
+    private static function render_clients_table(\WP_Query $clients, string $page_url): void
+    {
+        $back_url = remove_query_arg(['mcrm_view', 'mcrm_client_status', 'mcrm_interest_type'], $page_url);
+        ?>
+        <div class="mcrm-panel mcrm-table-panel" id="mcrm-clients">
+            <div class="mcrm-panel-head mcrm-table-head">
+                <div>
+                    <h2>Clientes cadastrados</h2>
+                    <p><?php echo esc_html((string) $clients->found_posts); ?> registro(s) encontrado(s)</p>
+                </div>
+                <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($back_url); ?>">&larr; Voltar</a>
+            </div>
+            <?php if ($clients->have_posts()) : ?>
+            <div class="mcrm-table-wrap">
+                <table class="mcrm-client-table">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Telefone</th>
+                            <th>Status</th>
+                            <th>Interesse</th>
+                            <th>Regiao</th>
+                            <th>Faixa de valor</th>
+                            <th>Corretor</th>
+                            <th>Cadastro</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($clients->posts as $client) : ?>
+                            <?php $cv = self::get_meta_values($client->ID); ?>
+                            <tr>
+                                <td class="mcrm-td-name"><?php echo esc_html(get_the_title($client->ID)); ?></td>
+                                <td><?php echo esc_html(self::format_cpf($cv['_mcrm_cpf'])); ?></td>
+                                <td><?php echo esc_html(self::format_phone($cv['_mcrm_phone'])); ?></td>
+                                <td><span class="mcrm-status-badge mcrm-status-<?php echo esc_attr(self::status_class($cv['_mcrm_client_status'])); ?>"><?php echo esc_html(self::label_for(self::CLIENT_STATUSES, $cv['_mcrm_client_status'])); ?></span></td>
+                                <td><span class="mcrm-type-pill"><?php echo esc_html(self::label_for(self::INTEREST_TYPES, $cv['_mcrm_interest_type'])); ?></span></td>
+                                <td><?php echo esc_html($cv['_mcrm_region'] ?: '—'); ?></td>
+                                <td><?php echo esc_html($cv['_mcrm_price_range'] ?: '—'); ?></td>
+                                <td><?php echo esc_html(self::get_broker_name((int) $cv['_mcrm_assigned_broker'])); ?></td>
+                                <td><?php echo esc_html(get_the_date('d/m/Y', $client->ID)); ?></td>
+                                <td><a class="mcrm-inline-link" href="<?php echo esc_url(add_query_arg('client_id', $client->ID, $back_url)); ?>">Editar</a></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+            <?php else : ?>
+            <div class="mcrm-empty-state">
+                <h3>Nenhum cliente encontrado.</h3>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php
     }
 
     private static function render_chart_rows(array $items, string $context): void

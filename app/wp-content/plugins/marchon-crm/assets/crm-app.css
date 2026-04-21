@@ -588,6 +588,77 @@
   padding: 1.1rem 1.2rem;
 }
 
+.mcrm-stat-card-link {
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.mcrm-stat-card-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 48px rgba(45, 80, 22, 0.12);
+  border-color: rgba(45, 80, 22, 0.2);
+}
+
+.mcrm-table-panel {
+  width: 100%;
+}
+
+.mcrm-table-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.mcrm-table-wrap {
+  overflow-x: auto;
+  border-radius: 16px;
+  border: 1px solid rgba(45, 80, 22, 0.08);
+}
+
+.mcrm-client-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.mcrm-client-table thead tr {
+  background: rgba(45, 80, 22, 0.05);
+  border-bottom: 1px solid rgba(45, 80, 22, 0.1);
+}
+
+.mcrm-client-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mcrm-muted);
+  white-space: nowrap;
+}
+
+.mcrm-client-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(45, 80, 22, 0.06);
+  color: var(--mcrm-ink);
+  vertical-align: middle;
+}
+
+.mcrm-client-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.mcrm-client-table tbody tr:hover td {
+  background: rgba(245, 240, 232, 0.6);
+}
+
+.mcrm-td-name {
+  font-weight: 700;
+}
+
 .mcrm-stat-card span {
   font-size: 0.78rem;
   letter-spacing: 0.12em;
