@@ -435,17 +435,25 @@ final class Marchon_CRM
             return self::render_front_login();
         }
 
-        $page_url = self::get_frontend_page_url();
-        $view = isset($_GET['mcrm_view']) ? sanitize_key(wp_unslash($_GET['mcrm_view'])) : '';
-        $editing_id = isset($_GET['client_id']) ? absint($_GET['client_id']) : 0;
-        $editing_post = $editing_id > 0 && self::user_can_access_client($editing_id) ? get_post($editing_id) : null;
-        $values = $editing_post instanceof \WP_Post ? self::get_meta_values($editing_post->ID) : self::get_empty_front_values();
-        $brokers = self::get_brokers();
-        $clients = self::get_front_clients();
-        $current_user = wp_get_current_user();
-        $notice = isset($_GET['mcrm_notice']) ? sanitize_text_field(wp_unslash($_GET['mcrm_notice'])) : '';
-        $status_breakdown = self::aggregate_by_map('_mcrm_client_status', self::CLIENT_STATUSES);
+        $page_url    = self::get_frontend_page_url();
+        $editing_id  = isset($_GET['client_id']) ? absint($_GET['client_id']) : 0;
+        $page        = isset($_GET['mcrm_page']) ? sanitize_key(wp_unslash($_GET['mcrm_page'])) : 'overview';
+        if ($editing_id > 0) {
+            $page = 'cadastro';
+        }
+
+        $editing_post      = $editing_id > 0 && self::user_can_access_client($editing_id) ? get_post($editing_id) : null;
+        $values            = $editing_post instanceof \WP_Post ? self::get_meta_values($editing_post->ID) : self::get_empty_front_values();
+        $brokers           = self::get_brokers();
+        $clients           = $page === 'clientes' ? self::get_front_clients(-1) : self::get_front_clients(24);
+        $current_user      = wp_get_current_user();
+        $notice            = isset($_GET['mcrm_notice']) ? sanitize_text_field(wp_unslash($_GET['mcrm_notice'])) : '';
+        $status_breakdown  = self::aggregate_by_map('_mcrm_client_status', self::CLIENT_STATUSES);
         $interest_breakdown = self::aggregate_by_map('_mcrm_interest_type', self::INTEREST_TYPES);
+
+        $url_overview  = $page_url;
+        $url_clientes  = add_query_arg('mcrm_page', 'clientes', $page_url);
+        $url_cadastro  = add_query_arg('mcrm_page', 'cadastro', $page_url);
 
         ob_start();
         ?>
@@ -459,9 +467,9 @@ final class Marchon_CRM
                     </div>
 
                     <nav class="mcrm-sidebar-nav" aria-label="Navegacao do CRM">
-                        <a href="#mcrm-overview" class="mcrm-nav-item is-active">Visao Geral</a>
-                        <a href="#mcrm-clients" class="mcrm-nav-item">Clientes</a>
-                        <a href="#mcrm-form" class="mcrm-nav-item">Cadastro</a>
+                        <a href="<?php echo esc_url($url_overview); ?>" class="mcrm-nav-item <?php echo $page === 'overview' ? 'is-active' : ''; ?>">Visao Geral</a>
+                        <a href="<?php echo esc_url($url_clientes); ?>" class="mcrm-nav-item <?php echo $page === 'clientes' ? 'is-active' : ''; ?>">Clientes</a>
+                        <a href="<?php echo esc_url($url_cadastro); ?>" class="mcrm-nav-item <?php echo $page === 'cadastro' ? 'is-active' : ''; ?>">Cadastro</a>
                     </nav>
 
                     <div class="mcrm-sidebar-metrics">
@@ -477,7 +485,7 @@ final class Marchon_CRM
                     </div>
 
                     <div class="mcrm-hero-actions">
-                        <a class="mcrm-btn mcrm-btn-primary" href="<?php echo esc_url(add_query_arg('client_id', 0, $page_url)); ?>">Novo cliente</a>
+                        <a class="mcrm-btn mcrm-btn-primary" href="<?php echo esc_url($url_cadastro); ?>">Novo cliente</a>
                         <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(wp_logout_url($page_url)); ?>">Sair</a>
                     </div>
                 </aside>
@@ -489,11 +497,8 @@ final class Marchon_CRM
                             <strong>CRM Comercial</strong>
                         </div>
                         <form class="mcrm-topbar-search" method="get" action="<?php echo esc_url($page_url); ?>">
+                            <input type="hidden" name="mcrm_page" value="clientes">
                             <input type="text" name="mcrm_name" data-mcrm-quick-search placeholder="Buscar por nome, CPF ou telefone" value="<?php echo esc_attr(isset($_GET['mcrm_name']) ? sanitize_text_field(wp_unslash($_GET['mcrm_name'])) : ''); ?>" autocomplete="off" autofocus>
-                            <?php if (isset($_GET['mcrm_interest_type'])) : ?><input type="hidden" name="mcrm_interest_type" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['mcrm_interest_type']))); ?>"><?php endif; ?>
-                            <?php if (isset($_GET['mcrm_client_status'])) : ?><input type="hidden" name="mcrm_client_status" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['mcrm_client_status']))); ?>"><?php endif; ?>
-                            <?php if (isset($_GET['mcrm_cpf'])) : ?><input type="hidden" name="mcrm_cpf" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['mcrm_cpf']))); ?>"><?php endif; ?>
-                            <?php if (isset($_GET['mcrm_phone'])) : ?><input type="hidden" name="mcrm_phone" value="<?php echo esc_attr(sanitize_text_field(wp_unslash($_GET['mcrm_phone']))); ?>"><?php endif; ?>
                             <button type="submit">Buscar</button>
                         </form>
                         <div class="mcrm-topbar-user">
@@ -502,20 +507,20 @@ final class Marchon_CRM
                                 <strong><?php echo esc_html($current_user->display_name ?: 'Usuario'); ?></strong>
                             </div>
                             <div class="mcrm-topbar-actions">
-                                <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(add_query_arg('client_id', 0, $page_url)); ?>">Novo</a>
+                                <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_cadastro); ?>">Novo</a>
                                 <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(wp_logout_url($page_url)); ?>">Sair</a>
                             </div>
                         </div>
                     </header>
 
-                    <div id="mcrm-overview"></div>
-
                     <?php self::render_front_notice($notice); ?>
 
+                    <?php if ($page === 'overview') : ?>
+
                     <div class="mcrm-stat-grid">
-                        <?php self::render_front_stat('Clientes visiveis', (string) self::count_clients(), add_query_arg('mcrm_view', 'clientes', $page_url)); ?>
-                        <?php self::render_front_stat('Novos leads', (string) self::count_by_meta('_mcrm_client_status', 'novo'), add_query_arg(['mcrm_view' => 'clientes', 'mcrm_client_status' => 'novo'], $page_url)); ?>
-                        <?php self::render_front_stat('Interesse em terreno', (string) self::count_by_meta('_mcrm_interest_type', 'terreno'), add_query_arg(['mcrm_view' => 'clientes', 'mcrm_interest_type' => 'terreno'], $page_url)); ?>
+                        <?php self::render_front_stat('Clientes visiveis', (string) self::count_clients(), add_query_arg('mcrm_page', 'clientes', $page_url)); ?>
+                        <?php self::render_front_stat('Novos leads', (string) self::count_by_meta('_mcrm_client_status', 'novo'), add_query_arg(['mcrm_page' => 'clientes', 'mcrm_client_status' => 'novo'], $page_url)); ?>
+                        <?php self::render_front_stat('Interesse em terreno', (string) self::count_by_meta('_mcrm_interest_type', 'terreno'), add_query_arg(['mcrm_page' => 'clientes', 'mcrm_interest_type' => 'terreno'], $page_url)); ?>
                         <?php self::render_front_stat('Corretor logado', $current_user->display_name ?: 'Usuario'); ?>
                     </div>
 
@@ -540,138 +545,91 @@ final class Marchon_CRM
                         </section>
                     </div>
 
-                    <?php if ($view === 'clientes') : ?>
+                    <?php elseif ($page === 'clientes') : ?>
                     <?php self::render_clients_table($clients, $page_url); ?>
-                    <?php else : ?>
-                    <div class="mcrm-workspace">
-                <div class="mcrm-panel mcrm-panel-list" id="mcrm-clients">
-                    <div class="mcrm-panel-head">
-                        <h2>Clientes</h2>
-                        <p>Busca por nome, CPF, telefone, status e tipo com leitura imediata de prioridade.</p>
-                    </div>
-                    <?php self::render_front_filters($page_url); ?>
-                    <div class="mcrm-card-list">
-                        <?php if ($clients->have_posts()) : ?>
-                            <?php foreach ($clients->posts as $client) : ?>
-                                <?php $client_values = self::get_meta_values($client->ID); ?>
-                                <article class="mcrm-client-card">
-                                    <div class="mcrm-client-top">
-                                        <div>
-                                            <div class="mcrm-client-topline">
-                                                <span class="mcrm-status-badge mcrm-status-<?php echo esc_attr(self::status_class($client_values['_mcrm_client_status'])); ?>">
-                                                    <?php echo esc_html(self::label_for(self::CLIENT_STATUSES, $client_values['_mcrm_client_status'])); ?>
-                                                </span>
-                                                <span class="mcrm-type-pill"><?php echo esc_html(self::label_for(self::INTEREST_TYPES, $client_values['_mcrm_interest_type'])); ?></span>
-                                            </div>
-                                            <h3><?php echo esc_html(get_the_title($client->ID)); ?></h3>
-                                            <p><?php echo esc_html(self::format_cpf($client_values['_mcrm_cpf'])); ?><?php echo $client_values['_mcrm_cpf'] !== '' ? ' · ' : ''; ?><?php echo esc_html(self::format_phone($client_values['_mcrm_phone'])); ?></p>
-                                        </div>
-                                        <a class="mcrm-inline-link" href="<?php echo esc_url(add_query_arg('client_id', $client->ID, $page_url)); ?>">Editar</a>
-                                    </div>
-                                    <div class="mcrm-client-priority">
-                                        <span class="mcrm-priority-label">Radar</span>
-                                        <strong><?php echo esc_html(self::priority_label($client_values['_mcrm_client_status'], $client_values['_mcrm_interest_type'])); ?></strong>
-                                    </div>
-                                    <div class="mcrm-meta-grid">
-                                        <span><strong>Regiao</strong><?php echo esc_html($client_values['_mcrm_region'] !== '' ? $client_values['_mcrm_region'] : 'Nao informada'); ?></span>
-                                        <span><strong>Faixa</strong><?php echo esc_html($client_values['_mcrm_price_range'] !== '' ? $client_values['_mcrm_price_range'] : 'Nao informada'); ?></span>
-                                        <span><strong>Corretor</strong><?php echo esc_html(self::get_broker_name((int) $client_values['_mcrm_assigned_broker'])); ?></span>
-                                        <span><strong>Atualizacao</strong><?php echo esc_html(get_the_date('d/m/Y', $client->ID)); ?></span>
-                                    </div>
-                                </article>
-                            <?php endforeach; ?>
-                        <?php else : ?>
-                            <div class="mcrm-empty-state">
-                                <h3>Nenhum cliente encontrado.</h3>
-                                <p>Ajuste os filtros ou cadastre um novo lead no formulario ao lado.</p>
-                            </div>
-                        <?php endif; ?>
-                    </div>
-                </div>
 
-                <div class="mcrm-panel mcrm-panel-form" id="mcrm-form">
-                    <div class="mcrm-panel-head">
-                        <h2><?php echo $editing_post instanceof \WP_Post ? 'Editar cliente' : 'Novo cliente'; ?></h2>
-                        <p><?php echo $editing_post instanceof \WP_Post ? 'Atualize os dados comerciais e o interesse do lead.' : 'Cadastro rapido, pensado para atendimento comercial em mobile e desktop.'; ?></p>
-                    </div>
-                    <div class="mcrm-stepper">
-                        <span class="mcrm-step is-active">1. Cliente</span>
-                        <span class="mcrm-step">2. Pipeline</span>
-                        <span class="mcrm-step">3. Interesse</span>
-                    </div>
-                    <form class="mcrm-front-form" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
-                        <input type="hidden" name="action" value="mcrm_save_front_client">
-                        <input type="hidden" name="_mcrm_client_id" value="<?php echo esc_attr($editing_post instanceof \WP_Post ? (string) $editing_post->ID : '0'); ?>">
-                        <input type="hidden" name="_mcrm_redirect" value="<?php echo esc_url($page_url); ?>">
-                        <?php wp_nonce_field('mcrm_front_save_client', 'mcrm_front_nonce'); ?>
-
-                        <div class="mcrm-form-section">
-                            <div class="mcrm-section-head">
-                                <span>Etapa 1</span>
-                                <h3>Identificacao do cliente</h3>
-                            </div>
-                            <div class="mcrm-form-grid">
-                            <?php self::render_front_input('Nome do cliente', 'post_title', $editing_post instanceof \WP_Post ? $editing_post->post_title : ''); ?>
-                            <?php self::render_front_input('CPF', '_mcrm_cpf', $values['_mcrm_cpf'], 'text', ['data-mask' => 'cpf', 'maxlength' => '14']); ?>
-                            <?php self::render_front_input('Telefone', '_mcrm_phone', $values['_mcrm_phone'], 'text', ['data-mask' => 'phone', 'maxlength' => '15']); ?>
-                            <?php self::render_front_input('Email', '_mcrm_email', $values['_mcrm_email'], 'email'); ?>
-                            </div>
+                    <?php elseif ($page === 'cadastro') : ?>
+                    <div class="mcrm-panel mcrm-panel-form">
+                        <div class="mcrm-panel-head">
+                            <h2><?php echo $editing_post instanceof \WP_Post ? 'Editar cliente' : 'Novo cliente'; ?></h2>
+                            <p><?php echo $editing_post instanceof \WP_Post ? 'Atualize os dados comerciais e o interesse do lead.' : 'Cadastro rapido, pensado para atendimento comercial em mobile e desktop.'; ?></p>
                         </div>
+                        <div class="mcrm-stepper">
+                            <span class="mcrm-step is-active">1. Cliente</span>
+                            <span class="mcrm-step">2. Pipeline</span>
+                            <span class="mcrm-step">3. Interesse</span>
+                        </div>
+                        <form class="mcrm-front-form" method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                            <input type="hidden" name="action" value="mcrm_save_front_client">
+                            <input type="hidden" name="_mcrm_client_id" value="<?php echo esc_attr($editing_post instanceof \WP_Post ? (string) $editing_post->ID : '0'); ?>">
+                            <input type="hidden" name="_mcrm_redirect" value="<?php echo esc_url($url_clientes); ?>">
+                            <?php wp_nonce_field('mcrm_front_save_client', 'mcrm_front_nonce'); ?>
 
-                        <div class="mcrm-form-section">
-                            <div class="mcrm-section-head">
-                                <span>Etapa 2</span>
-                                <h3>Pipeline comercial</h3>
-                            </div>
-                            <div class="mcrm-form-grid">
-                            <?php self::render_front_select('Tipo de interesse', '_mcrm_interest_type', $values['_mcrm_interest_type'], self::INTEREST_TYPES, ['data-mcrm-interest' => '1']); ?>
-                            <?php self::render_front_select('Status', '_mcrm_client_status', $values['_mcrm_client_status'], self::CLIENT_STATUSES); ?>
-                            <?php self::render_front_input('Regiao desejada', '_mcrm_region', $values['_mcrm_region']); ?>
-                            <?php self::render_front_input('Faixa de valor', '_mcrm_price_range', $values['_mcrm_price_range']); ?>
-
-                            <?php if (current_user_can('manage_options')) : ?>
-                                <?php self::render_front_select('Corretor responsavel', '_mcrm_assigned_broker', $values['_mcrm_assigned_broker'], $brokers); ?>
-                            <?php else : ?>
-                                <input type="hidden" name="_mcrm_assigned_broker" value="<?php echo esc_attr((string) get_current_user_id()); ?>">
-                                <div class="mcrm-front-field">
-                                    <label>Corretor responsavel</label>
-                                    <div class="mcrm-static-field"><?php echo esc_html($current_user->display_name ?: 'Usuario'); ?></div>
+                            <div class="mcrm-form-section">
+                                <div class="mcrm-section-head">
+                                    <span>Etapa 1</span>
+                                    <h3>Identificacao do cliente</h3>
                                 </div>
-                            <?php endif; ?>
-                            </div>
-                        </div>
-
-                        <div class="mcrm-form-section">
-                            <div class="mcrm-section-head">
-                                <span>Etapa 3</span>
-                                <h3>Interesse e observacoes</h3>
-                            </div>
-                            <div class="mcrm-form-grid">
-                            <div class="mcrm-front-box" data-mcrm-terrain>
-                                <h3>Dados do terreno</h3>
                                 <div class="mcrm-form-grid">
-                                    <?php self::render_front_input('Metragem minima (m²)', '_mcrm_terrain_area_min', $values['_mcrm_terrain_area_min'], 'number'); ?>
-                                    <?php self::render_front_input('Metragem maxima (m²)', '_mcrm_terrain_area_max', $values['_mcrm_terrain_area_max'], 'number'); ?>
-                                    <?php self::render_front_select('Topografia', '_mcrm_terrain_topography', $values['_mcrm_terrain_topography'], self::TOPOGRAPHIES); ?>
-                                    <?php self::render_front_select('Finalidade', '_mcrm_terrain_purpose', $values['_mcrm_terrain_purpose'], self::PURPOSES); ?>
-                                    <?php self::render_front_select('Interesse em condominio', '_mcrm_terrain_gated_community', $values['_mcrm_terrain_gated_community'], ['sim' => 'Sim', 'nao' => 'Nao']); ?>
+                                    <?php self::render_front_input('Nome do cliente', 'post_title', $editing_post instanceof \WP_Post ? $editing_post->post_title : ''); ?>
+                                    <?php self::render_front_input('CPF', '_mcrm_cpf', $values['_mcrm_cpf'], 'text', ['data-mask' => 'cpf', 'maxlength' => '14']); ?>
+                                    <?php self::render_front_input('Telefone', '_mcrm_phone', $values['_mcrm_phone'], 'text', ['data-mask' => 'phone', 'maxlength' => '15']); ?>
+                                    <?php self::render_front_input('Email', '_mcrm_email', $values['_mcrm_email'], 'email'); ?>
                                 </div>
                             </div>
 
-                            <div class="mcrm-front-field mcrm-front-field-full">
-                                <label for="_mcrm_notes">Observacoes</label>
-                                <textarea id="_mcrm_notes" name="_mcrm_notes" rows="5"><?php echo esc_textarea($values['_mcrm_notes']); ?></textarea>
+                            <div class="mcrm-form-section">
+                                <div class="mcrm-section-head">
+                                    <span>Etapa 2</span>
+                                    <h3>Pipeline comercial</h3>
+                                </div>
+                                <div class="mcrm-form-grid">
+                                    <?php self::render_front_select('Tipo de interesse', '_mcrm_interest_type', $values['_mcrm_interest_type'], self::INTEREST_TYPES, ['data-mcrm-interest' => '1']); ?>
+                                    <?php self::render_front_select('Status', '_mcrm_client_status', $values['_mcrm_client_status'], self::CLIENT_STATUSES); ?>
+                                    <?php self::render_front_input('Regiao desejada', '_mcrm_region', $values['_mcrm_region']); ?>
+                                    <?php self::render_front_input('Faixa de valor', '_mcrm_price_range', $values['_mcrm_price_range']); ?>
+                                    <?php if (current_user_can('manage_options')) : ?>
+                                        <?php self::render_front_select('Corretor responsavel', '_mcrm_assigned_broker', $values['_mcrm_assigned_broker'], $brokers); ?>
+                                    <?php else : ?>
+                                        <input type="hidden" name="_mcrm_assigned_broker" value="<?php echo esc_attr((string) get_current_user_id()); ?>">
+                                        <div class="mcrm-front-field">
+                                            <label>Corretor responsavel</label>
+                                            <div class="mcrm-static-field"><?php echo esc_html($current_user->display_name ?: 'Usuario'); ?></div>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                        </div>
-                        </div>
 
-                        <div class="mcrm-form-actions">
-                            <button class="mcrm-btn mcrm-btn-primary" type="submit">Salvar cliente</button>
-                            <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url(remove_query_arg(['client_id', 'mcrm_notice'], $page_url)); ?>">Limpar</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+                            <div class="mcrm-form-section">
+                                <div class="mcrm-section-head">
+                                    <span>Etapa 3</span>
+                                    <h3>Interesse e observacoes</h3>
+                                </div>
+                                <div class="mcrm-form-grid">
+                                    <div class="mcrm-front-box" data-mcrm-terrain>
+                                        <h3>Dados do terreno</h3>
+                                        <div class="mcrm-form-grid">
+                                            <?php self::render_front_input('Metragem minima (m²)', '_mcrm_terrain_area_min', $values['_mcrm_terrain_area_min'], 'number'); ?>
+                                            <?php self::render_front_input('Metragem maxima (m²)', '_mcrm_terrain_area_max', $values['_mcrm_terrain_area_max'], 'number'); ?>
+                                            <?php self::render_front_select('Topografia', '_mcrm_terrain_topography', $values['_mcrm_terrain_topography'], self::TOPOGRAPHIES); ?>
+                                            <?php self::render_front_select('Finalidade', '_mcrm_terrain_purpose', $values['_mcrm_terrain_purpose'], self::PURPOSES); ?>
+                                            <?php self::render_front_select('Interesse em condominio', '_mcrm_terrain_gated_community', $values['_mcrm_terrain_gated_community'], ['sim' => 'Sim', 'nao' => 'Nao']); ?>
+                                        </div>
+                                    </div>
+                                    <div class="mcrm-front-field mcrm-front-field-full">
+                                        <label for="_mcrm_notes">Observacoes</label>
+                                        <textarea id="_mcrm_notes" name="_mcrm_notes" rows="5"><?php echo esc_textarea($values['_mcrm_notes']); ?></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mcrm-form-actions">
+                                <button class="mcrm-btn mcrm-btn-primary" type="submit">Salvar cliente</button>
+                                <a class="mcrm-btn mcrm-btn-secondary" href="<?php echo esc_url($url_clientes); ?>">Cancelar</a>
+                            </div>
+                        </form>
+                    </div>
+
                     <?php endif; ?>
                 </div>
             </div>
@@ -1094,7 +1052,7 @@ final class Marchon_CRM
         return home_url('/marchon-crm/');
     }
 
-    private static function get_front_clients(): \WP_Query
+    private static function get_front_clients(int $per_page = 24): \WP_Query
     {
         $meta_query = self::get_scope_meta_query();
         $search_term = isset($_GET['mcrm_name']) ? sanitize_text_field(wp_unslash($_GET['mcrm_name'])) : '';
@@ -1181,7 +1139,7 @@ final class Marchon_CRM
         $query_args = [
             'post_type' => 'mcrm_client',
             'post_status' => 'any',
-            'posts_per_page' => 24,
+            'posts_per_page' => $per_page,
             'orderby' => 'date',
             'order' => 'DESC',
             'meta_query' => $meta_query,
@@ -1291,7 +1249,7 @@ final class Marchon_CRM
 
     private static function render_clients_table(\WP_Query $clients, string $page_url): void
     {
-        $back_url = remove_query_arg(['mcrm_view', 'mcrm_client_status', 'mcrm_interest_type'], $page_url);
+        $back_url = add_query_arg('mcrm_page', 'overview', remove_query_arg(['mcrm_page', 'mcrm_client_status', 'mcrm_interest_type', 'mcrm_name'], $page_url));
         ?>
         <div class="mcrm-panel mcrm-table-panel" id="mcrm-clients">
             <div class="mcrm-panel-head mcrm-table-head">
@@ -1331,7 +1289,7 @@ final class Marchon_CRM
                                 <td><?php echo esc_html($cv['_mcrm_price_range'] ?: '—'); ?></td>
                                 <td><?php echo esc_html(self::get_broker_name((int) $cv['_mcrm_assigned_broker'])); ?></td>
                                 <td><?php echo esc_html(get_the_date('d/m/Y', $client->ID)); ?></td>
-                                <td><a class="mcrm-inline-link" href="<?php echo esc_url(add_query_arg('client_id', $client->ID, $back_url)); ?>">Editar</a></td>
+                                <td><a class="mcrm-inline-link" href="<?php echo esc_url(add_query_arg('client_id', $client->ID, $page_url)); ?>">Editar</a></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>

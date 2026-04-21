@@ -672,6 +672,10 @@
   color: var(--mcrm-ink);
 }
 
+.mcrm-panel-form {
+  max-width: 760px;
+}
+
 .mcrm-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(380px, 0.95fr);
