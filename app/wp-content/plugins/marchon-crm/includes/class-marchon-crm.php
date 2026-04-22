@@ -251,14 +251,14 @@ final class Marchon_CRM
             'marchon-crm-app',
             plugins_url('assets/crm-app.css', self::$plugin_file),
             [],
-            '0.4.0'
+            '0.4.1'
         );
 
         wp_enqueue_script(
             'marchon-crm-front',
             plugins_url('assets/crm-app.js', self::$plugin_file),
             [],
-            '0.4.0',
+            '0.4.1',
             true
         );
 
@@ -924,22 +924,30 @@ final class Marchon_CRM
 
     private static function render_front_login(): string
     {
+        $mockup_url = plugins_url('assets/celular-4.png', self::$plugin_file);
+
         ob_start();
         ?>
         <section class="mcrm-login-shell">
             <div class="mcrm-login-card">
-                <p class="mcrm-eyebrow">Marchon CRM</p>
-                <h1>Entrada para corretores cadastrados no Marchon CRM.</h1>
-                <div class="mcrm-login-form">
-                    <?php
-                    wp_login_form([
-                        'redirect' => self::get_frontend_page_url(),
-                        'label_username' => 'Usuario',
-                        'label_password' => 'Senha',
-                        'label_log_in' => 'Entrar no CRM',
-                        'remember' => true,
-                    ]);
-                    ?>
+                <div class="mcrm-login-copy">
+                    <p class="mcrm-eyebrow">Marchon CRM</p>
+                    <h1>Entrada para corretores cadastrados no Marchon CRM.</h1>
+                    <p>Controle clientes, acompanhe oportunidades e atualize o funil comercial em uma interface pensada para operacao rapida.</p>
+                    <div class="mcrm-login-form">
+                        <?php
+                        wp_login_form([
+                            'redirect' => self::get_frontend_page_url(),
+                            'label_username' => 'Usuario',
+                            'label_password' => 'Senha',
+                            'label_log_in' => 'Entrar no CRM',
+                            'remember' => true,
+                        ]);
+                        ?>
+                    </div>
+                </div>
+                <div class="mcrm-login-visual" aria-hidden="true">
+                    <img src="<?php echo esc_url($mockup_url); ?>" alt="" loading="lazy">
                 </div>
             </div>
         </section>

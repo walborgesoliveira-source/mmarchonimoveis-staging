@@ -321,6 +321,13 @@
   box-shadow: 0 28px 80px rgba(45, 80, 22, 0.09);
 }
 
+.mcrm-login-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(240px, 0.95fr);
+  align-items: center;
+  gap: 1.5rem;
+}
+
 .mcrm-app-hero {
   display: grid;
   grid-template-columns: 1.8fr 0.9fr;
@@ -367,6 +374,40 @@
   font-size: 0.88rem;
   color: var(--mcrm-muted);
   margin: 0 0 0.75rem;
+}
+
+.mcrm-login-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.mcrm-login-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+}
+
+.mcrm-login-visual::before {
+  content: "";
+  position: absolute;
+  inset: 12% 10% 10%;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0)),
+    linear-gradient(180deg, rgba(45, 80, 22, 0.08), rgba(196, 154, 42, 0.16));
+  filter: blur(4px);
+}
+
+.mcrm-login-visual img {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: min(100%, 320px);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 30px 50px rgba(45, 80, 22, 0.18));
 }
 
 .mcrm-hero-badges {
@@ -1047,7 +1088,7 @@
 }
 
 .mcrm-login-card {
-  width: min(100%, 400px);
+  width: min(100%, 980px);
   padding: 1.5rem 1.75rem;
 }
 
@@ -1086,7 +1127,8 @@
 
   .mcrm-workspace,
   .mcrm-app-hero,
-  .mcrm-chart-grid {
+  .mcrm-chart-grid,
+  .mcrm-login-card {
     grid-template-columns: 1fr;
   }
 
@@ -1109,6 +1151,14 @@
   .mcrm-hero-preview {
     max-width: 680px;
   }
+
+  .mcrm-login-visual {
+    min-height: 0;
+  }
+
+  .mcrm-login-visual img {
+    width: min(100%, 260px);
+  }
 }
 
 @media (max-width: 680px) {
@@ -1122,6 +1172,19 @@
   .mcrm-login-card {
     padding: 1.1rem;
     border-radius: 22px;
+  }
+
+  .mcrm-login-visual {
+    order: -1;
+    padding-top: 0.35rem;
+  }
+
+  .mcrm-login-visual::before {
+    inset: 8% 12% 8%;
+  }
+
+  .mcrm-login-visual img {
+    width: min(100%, 220px);
   }
 
   .mcrm-stat-grid,
