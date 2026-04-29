@@ -894,11 +894,62 @@ function marchon_get_instagram_feed_shortcode(): string {
     return '';
 }
 
+function marchon_get_instagram_local_fallback_images(): array {
+    $images = [];
+
+    $query = new WP_Query([
+        'post_type'      => 'imoveis',
+        'post_status'    => 'publish',
+        'posts_per_page' => 8,
+        'orderby'        => 'date',
+        'order'          => 'DESC',
+        'no_found_rows'  => true,
+    ]);
+
+    while ($query->have_posts()) {
+        $query->the_post();
+        $thumbnail = get_the_post_thumbnail_url(get_the_ID(), 'large');
+        if ($thumbnail) {
+            $images[] = $thumbnail;
+        }
+    }
+    wp_reset_postdata();
+
+    $images = array_merge($images, [
+        home_url('/wp-content/uploads/2026/04/mmarchon-codigo-001.jpg'),
+        home_url('/wp-content/uploads/2026/04/002-1.jpg'),
+        home_url('/wp-content/uploads/2026/04/002-6.jpg'),
+        home_url('/wp-content/uploads/2026/04/0001-2.jpg'),
+    ]);
+
+    $site_host = wp_parse_url(home_url(), PHP_URL_HOST);
+    $images = array_map(function (string $url) use ($site_host): string {
+        return preg_replace('#https?://(dev|staging|www)?\.?mmarchonimoveis\.com\.br#', 'https://' . $site_host, $url);
+    }, $images);
+
+    return array_values(array_unique(array_filter($images)));
+}
+
 function marchon_prepare_instagram_feed_html(string $html): string {
+    $fallback_images = marchon_get_instagram_local_fallback_images();
+    $index = 0;
+
     return (string) preg_replace_callback(
         '/(<a\b[^>]*\bclass="[^"]*\bsbi_photo\b[^"]*"[^>]*\bdata-full-res="([^"]+)"[^>]*>)(.*?)(<\/a>)/is',
-        function (array $matches): string {
-            $image_url = esc_url($matches[2]);
+        function (array $matches) use ($fallback_images, &$index): string {
+            $fallback_url = $fallback_images[$index % max(1, count($fallback_images))] ?? $matches[2];
+            $image_url = esc_url($fallback_url);
+            $link = $matches[1];
+            $style = 'background-image: url(\'' . $image_url . '\');';
+            $index++;
+
+            if (str_contains($link, ' style="')) {
+                $link = preg_replace('/ style="([^"]*)"/i', ' style="$1 ' . esc_attr($style) . '"', $link, 1);
+            } else {
+                $link = preg_replace('/>$/', ' style="' . esc_attr($style) . '">', $link, 1);
+            }
+            $link = preg_replace('/>$/', ' data-local-image="' . esc_url($image_url) . '">', $link, 1);
+
             $inner = (string) preg_replace(
                 '/<img\b[^>]*\bsrc="[^"]*placeholder\.png"[^>]*>/i',
                 '<img src="' . $image_url . '" alt="" aria-hidden="true">',
@@ -906,7 +957,7 @@ function marchon_prepare_instagram_feed_html(string $html): string {
                 1
             );
 
-            return $matches[1] . $inner . $matches[4];
+            return $link . $inner . $matches[4];
         },
         $html
     );
@@ -1168,6 +1219,9 @@ add_action('wp_footer', function() { ?>
     (function() {
         function getInstagramImageUrl(link) {
             if (!link) return '';
+
+            var localUrl = link.getAttribute('data-local-image');
+            if (localUrl) return localUrl;
 
             var directUrl = link.getAttribute('data-full-res');
             if (directUrl) return directUrl;
