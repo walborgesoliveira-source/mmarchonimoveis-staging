@@ -894,13 +894,31 @@ function marchon_get_instagram_feed_shortcode(): string {
     return '';
 }
 
+function marchon_prepare_instagram_feed_html(string $html): string {
+    return (string) preg_replace_callback(
+        '/(<a\b[^>]*\bclass="[^"]*\bsbi_photo\b[^"]*"[^>]*\bdata-full-res="([^"]+)"[^>]*>)(.*?)(<\/a>)/is',
+        function (array $matches): string {
+            $image_url = esc_url($matches[2]);
+            $inner = (string) preg_replace(
+                '/<img\b[^>]*\bsrc="[^"]*placeholder\.png"[^>]*>/i',
+                '<img src="' . $image_url . '" alt="" aria-hidden="true">',
+                $matches[3],
+                1
+            );
+
+            return $matches[1] . $inner . $matches[4];
+        },
+        $html
+    );
+}
+
 function marchon_render_instagram_feed(): string {
     $shortcode = marchon_get_instagram_feed_shortcode();
 
     if ($shortcode !== '') {
         $output = (string) do_shortcode($shortcode);
         if ($output !== '' && !str_contains($output, 'sbi_mod_error') && !str_contains($output, 'No feed found')) {
-            return $output;
+            return marchon_prepare_instagram_feed_html($output);
         }
     }
 
@@ -1140,6 +1158,48 @@ add_action('wp_footer', function() { ?>
             btn.classList.toggle('aberto', aberto);
             btn.setAttribute('aria-expanded', aberto);
         });
+    })();
+    </script>
+<?php });
+
+// ── FALLBACK DO FEED DO INSTAGRAM ───────────────────────────────────────────
+add_action('wp_footer', function() { ?>
+    <script>
+    (function() {
+        function getInstagramImageUrl(link) {
+            if (!link) return '';
+
+            var directUrl = link.getAttribute('data-full-res');
+            if (directUrl) return directUrl;
+
+            var srcSet = link.getAttribute('data-img-src-set');
+            if (!srcSet) return '';
+
+            try {
+                var parsed = JSON.parse(srcSet.replace(/&quot;/g, '"'));
+                return parsed['640'] || parsed['320'] || parsed['150'] || parsed.d || '';
+            } catch (error) {
+                return '';
+            }
+        }
+
+        function restoreInstagramImages() {
+            document.querySelectorAll('.marchon-instagram-feed-shell .sbi_photo img').forEach(function(img) {
+                if (img.src.indexOf('/placeholder.png') === -1) return;
+
+                var url = getInstagramImageUrl(img.closest('.sbi_photo'));
+                if (!url) return;
+
+                img.src = url;
+                img.removeAttribute('srcset');
+                img.alt = '';
+                img.setAttribute('aria-hidden', 'true');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', restoreInstagramImages);
+        window.addEventListener('load', restoreInstagramImages);
+        setTimeout(restoreInstagramImages, 1200);
     })();
     </script>
 <?php });
