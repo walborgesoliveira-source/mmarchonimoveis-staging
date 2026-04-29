@@ -5,7 +5,7 @@ Description: Tema filho do Twenty Twenty-Five para Marcos Marchon Imóveis
 Author: TBPiXEL - IAGURU
 Author URI: http://www.iaguru.com.br
 Template: twentytwentyfive
-Version: 1.0.0
+Version: 1.0.1
 Text Domain: marchon-child
 */
 
@@ -1014,6 +1014,22 @@ a:hover { color: var(--verde-claro); }
 .marchon-instagram-feed-shell #sbi_images .sbi_photo:hover {
   transform: translateY(-6px);
   box-shadow: 0 18px 38px rgba(31,59,43,.12) !important;
+}
+.marchon-instagram-feed-shell .sb_instagram_header,
+.marchon-instagram-feed-shell .sbi_header_link,
+.marchon-instagram-feed-shell .sbi_header_text,
+.marchon-instagram-feed-shell .sbi_feedtheme_header_text,
+.marchon-instagram-feed-shell .sbi_bio,
+.marchon-instagram-feed-shell .sbi-screenreader,
+.marchon-instagram-feed-shell .sbi_caption,
+.marchon-instagram-feed-shell .sbi_meta,
+.marchon-instagram-feed-shell .sbi_info,
+.marchon-instagram-feed-shell .sbi_expand,
+.marchon-instagram-feed-shell .sbi_lightbox_action {
+  display: none !important;
+}
+.marchon-instagram-feed-shell #sbi_images .sbi_photo img {
+  display: block !important;
 }
 .marchon-instagram-feed-shell .sbi_follow_btn a,
 .marchon-instagram-feed-shell .sbi_load_btn a,
