@@ -1074,7 +1074,7 @@ add_shortcode('banner_imoveis', function() {
     wp_reset_postdata();
 
     ob_start(); ?>
-    <div class="marchon-banner" id="banner-rotativo">
+    <div class="marchon-banner" id="banner-rotativo" data-marchon-banner>
         <?php foreach ($slides as $i => $slide): ?>
         <div class="banner-slide <?php echo $i === 0 ? 'ativo' : ''; ?>"
              style="background-image: url('<?php echo $slide['foto'] ? esc_url($slide['foto']) : 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&q=80'; ?>')">
@@ -1086,36 +1086,70 @@ add_shortcode('banner_imoveis', function() {
             <h1 class="banner-titulo" id="banner-titulo"><?php echo esc_html($slides[0]['titulo']); ?></h1>
         </div>
 
-        <button class="banner-nav banner-prev" onclick="bannerNav(-1)" aria-label="Anterior">&#8249;</button>
-        <button class="banner-nav banner-next" onclick="bannerNav(1)" aria-label="Próximo">&#8250;</button>
+        <button class="banner-nav banner-prev" type="button" data-banner-prev aria-label="Anterior">&#8249;</button>
+        <button class="banner-nav banner-next" type="button" data-banner-next aria-label="Próximo">&#8250;</button>
 
         <div class="banner-dots">
             <?php foreach ($slides as $i => $slide): ?>
             <button class="banner-dot <?php echo $i === 0 ? 'ativo' : ''; ?>"
-                    onclick="bannerIr(<?php echo $i; ?>)" aria-label="Slide <?php echo $i+1; ?>"></button>
+                    type="button" data-banner-dot="<?php echo esc_attr((string) $i); ?>" aria-label="Slide <?php echo $i+1; ?>"></button>
             <?php endforeach; ?>
         </div>
     </div>
 
     <script>
-    var bannerSlides = <?php echo json_encode($slides); ?>;
-    var bannerAtual = 0;
-    var bannerTimer;
+    document.addEventListener('DOMContentLoaded', function() {
+        var banner = document.querySelector('[data-marchon-banner]');
+        if (!banner) return;
 
-    function bannerAtualizar(n) {
-        var slides = document.querySelectorAll('.banner-slide');
-        var dots   = document.querySelectorAll('.banner-dot');
-        slides[bannerAtual].classList.remove('ativo');
-        dots[bannerAtual].classList.remove('ativo');
-        bannerAtual = (n + slides.length) % slides.length;
-        slides[bannerAtual].classList.add('ativo');
-        dots[bannerAtual].classList.add('ativo');
-        document.getElementById('banner-titulo').textContent    = bannerSlides[bannerAtual].titulo;
-    }
-    function bannerNav(dir) { clearInterval(bannerTimer); bannerAtualizar(bannerAtual + dir); bannerIniciar(); }
-    function bannerIr(n)    { clearInterval(bannerTimer); bannerAtualizar(n); bannerIniciar(); }
-    function bannerIniciar() { bannerTimer = setInterval(function(){ bannerAtualizar(bannerAtual + 1); }, 5000); }
-    bannerIniciar();
+        var bannerSlides = <?php echo wp_json_encode($slides); ?>;
+        var slides = banner.querySelectorAll('.banner-slide');
+        var dots = banner.querySelectorAll('.banner-dot');
+        var title = banner.querySelector('.banner-titulo');
+        var current = 0;
+        var timer = null;
+
+        if (slides.length <= 1) return;
+
+        function update(next) {
+            slides[current].classList.remove('ativo');
+            dots[current].classList.remove('ativo');
+            current = (next + slides.length) % slides.length;
+            slides[current].classList.add('ativo');
+            dots[current].classList.add('ativo');
+            if (title && bannerSlides[current]) {
+                title.textContent = bannerSlides[current].titulo;
+            }
+        }
+
+        function start() {
+            timer = window.setInterval(function() {
+                update(current + 1);
+            }, 5000);
+        }
+
+        function restart(next) {
+            window.clearInterval(timer);
+            update(next);
+            start();
+        }
+
+        banner.querySelector('[data-banner-prev]')?.addEventListener('click', function() {
+            restart(current - 1);
+        });
+
+        banner.querySelector('[data-banner-next]')?.addEventListener('click', function() {
+            restart(current + 1);
+        });
+
+        dots.forEach(function(dot) {
+            dot.addEventListener('click', function() {
+                restart(parseInt(dot.getAttribute('data-banner-dot'), 10) || 0);
+            });
+        });
+
+        start();
+    });
     </script>
     <?php
     return ob_get_clean();
