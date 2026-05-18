@@ -286,6 +286,16 @@ function marchon_get_imoveis_capabilities(): array {
     ];
 }
 
+function marchon_get_gestor_base_capabilities(): array {
+    return [
+        'edit_posts',
+        'edit_published_posts',
+        'publish_posts',
+        'delete_posts',
+        'delete_published_posts',
+    ];
+}
+
 function marchon_is_imoveis_manager(): bool {
     return current_user_can('edit_imoveis') && !current_user_can('administrator');
 }
@@ -301,6 +311,24 @@ add_filter('register_post_type_args', function(array $args, string $post_type): 
     $args['supports']        = ['title', 'editor', 'thumbnail'];
 
     return $args;
+}, 20, 2);
+
+add_filter('wp_insert_post_data', function(array $data, array $postarr): array {
+    if (($data['post_type'] ?? '') !== 'imoveis' || !marchon_is_imoveis_manager()) {
+        return $data;
+    }
+
+    $is_publish_action = isset($_POST['publish']) || isset($_POST['save']) || (($postarr['post_status'] ?? '') === 'publish');
+    if ($is_publish_action && in_array($data['post_status'] ?? '', ['draft', 'pending', 'future'], true)) {
+        $data['post_status'] = 'publish';
+    }
+
+    if (($data['post_status'] ?? '') === 'publish' && mysql2date('U', $data['post_date_gmt'] ?? '') > time()) {
+        $data['post_date'] = current_time('mysql');
+        $data['post_date_gmt'] = current_time('mysql', true);
+    }
+
+    return $data;
 }, 20, 2);
 
 add_action('init', function() {
@@ -321,6 +349,9 @@ add_action('init', function() {
     if ($role instanceof WP_Role) {
         $role->add_cap('read');
         $role->add_cap('upload_files');
+        foreach (marchon_get_gestor_base_capabilities() as $cap) {
+            $role->add_cap($cap);
+        }
         foreach ($imoveis_caps as $cap) {
             $role->add_cap($cap);
         }
