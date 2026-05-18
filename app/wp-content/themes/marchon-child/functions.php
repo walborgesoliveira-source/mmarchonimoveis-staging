@@ -296,8 +296,18 @@ function marchon_get_gestor_base_capabilities(): array {
     ];
 }
 
+function marchon_get_admin_required_capabilities(): array {
+    return [
+        'list_users',
+        'create_users',
+        'edit_users',
+        'promote_users',
+        'delete_users',
+    ];
+}
+
 function marchon_is_imoveis_manager(): bool {
-    return current_user_can('edit_imoveis') && !current_user_can('administrator');
+    return current_user_can('edit_imoveis') && !current_user_can('manage_options');
 }
 
 add_filter('register_post_type_args', function(array $args, string $post_type): array {
@@ -359,6 +369,9 @@ add_action('init', function() {
 
     $admin_role = get_role('administrator');
     if ($admin_role instanceof WP_Role) {
+        foreach (marchon_get_admin_required_capabilities() as $cap) {
+            $admin_role->add_cap($cap);
+        }
         foreach ($imoveis_caps as $cap) {
             $admin_role->add_cap($cap);
         }
