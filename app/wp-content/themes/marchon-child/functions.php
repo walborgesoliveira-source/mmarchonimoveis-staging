@@ -328,8 +328,7 @@ add_filter('wp_insert_post_data', function(array $data, array $postarr): array {
         return $data;
     }
 
-    $is_publish_action = isset($_POST['publish']) || isset($_POST['save']) || (($postarr['post_status'] ?? '') === 'publish');
-    if ($is_publish_action && in_array($data['post_status'] ?? '', ['draft', 'pending', 'future'], true)) {
+    if (in_array($data['post_status'] ?? '', ['draft', 'pending', 'future'], true)) {
         $data['post_status'] = 'publish';
     }
 
