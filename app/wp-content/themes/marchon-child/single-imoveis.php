@@ -14,6 +14,9 @@ $preco     = get_field('preco', $id);
 $cod_ref   = get_field('codigo_referencia', $id);
 $foto      = get_field('fotos', $id);
 $foto_url  = is_array($foto) ? (string) ($foto['url'] ?? '') : '';
+if ($foto_url === '') {
+    $foto_url = (string) get_the_post_thumbnail_url($id, 'large');
+}
 $instagram = get_field('link_instagram', $id);
 $facebook  = get_field('link_facebook', $id);
 $youtube   = get_field('link_youtube', $id);

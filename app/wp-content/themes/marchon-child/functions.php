@@ -179,6 +179,9 @@ function marchon_render_imovel_card(int $post_id, string $heading_tag = 'h3'): s
     $destaque = get_field('destaque', $post_id);
     $foto = get_field('fotos', $post_id);
     $foto_url = is_array($foto) ? (string) ($foto['url'] ?? '') : '';
+    if ($foto_url === '') {
+        $foto_url = (string) get_the_post_thumbnail_url($post_id, 'large');
+    }
     $tipos_label = ['terreno' => 'Terreno', 'casa' => 'Casa', 'apartamento' => 'Apartamento', 'comercial' => 'Comercial'];
     $heading_tag = in_array($heading_tag, ['h2', 'h3', 'h4'], true) ? $heading_tag : 'h3';
     $metrics = marchon_get_imovel_card_metrics($post_id);
@@ -328,8 +331,17 @@ add_filter('wp_insert_post_data', function(array $data, array $postarr): array {
         return $data;
     }
 
+    if ((defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || wp_is_post_revision((int) ($postarr['ID'] ?? 0))) {
+        return $data;
+    }
+
     if (in_array($data['post_status'] ?? '', ['draft', 'pending', 'future'], true)) {
-        $data['post_status'] = 'publish';
+        $title = trim(wp_strip_all_tags((string) ($data['post_title'] ?? '')));
+        $content = trim(wp_strip_all_tags((string) ($data['post_content'] ?? '')));
+
+        if ($title !== '' && $content !== '') {
+            $data['post_status'] = 'publish';
+        }
     }
 
     if (($data['post_status'] ?? '') === 'publish' && mysql2date('U', $data['post_date_gmt'] ?? '') > time()) {
