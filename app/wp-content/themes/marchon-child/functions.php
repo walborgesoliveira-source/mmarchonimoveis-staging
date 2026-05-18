@@ -553,7 +553,6 @@ add_action('admin_head', function() {
     <style>
         #contextual-help-link-wrap,
         #screen-options-link-wrap,
-        .editor-post-featured-image__toggle,
         .editor-post-excerpt,
         .editor-post-discussion,
         .editor-post-last-revision {
@@ -568,6 +567,22 @@ add_action('admin_init', function() {
         return;
     }
 
+    if (wp_doing_ajax()) {
+        return;
+    }
+
+    global $pagenow;
+    $allowed_pages = [
+        'admin-ajax.php',
+        'async-upload.php',
+        'media-upload.php',
+        'upload.php',
+    ];
+
+    if (in_array((string) $pagenow, $allowed_pages, true)) {
+        return;
+    }
+
     $screen = function_exists('get_current_screen') ? get_current_screen() : null;
     if (!$screen) {
         return;
@@ -576,6 +591,8 @@ add_action('admin_init', function() {
     $allowed_screens = [
         'edit-imoveis',
         'imoveis',
+        'media',
+        'media-upload',
         'upload',
     ];
 
