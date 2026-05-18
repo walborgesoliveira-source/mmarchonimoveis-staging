@@ -290,6 +290,10 @@ function marchon_get_imoveis_capabilities(): array {
 }
 
 function marchon_get_gestor_base_capabilities(): array {
+    return [];
+}
+
+function marchon_get_legacy_gestor_base_capabilities(): array {
     return [
         'edit_posts',
         'edit_published_posts',
@@ -361,6 +365,9 @@ add_action('init', function() {
     if ($role instanceof WP_Role) {
         $role->add_cap('read');
         $role->add_cap('upload_files');
+        foreach (marchon_get_legacy_gestor_base_capabilities() as $cap) {
+            $role->remove_cap($cap);
+        }
         foreach (marchon_get_gestor_base_capabilities() as $cap) {
             $role->add_cap($cap);
         }
@@ -379,17 +386,6 @@ add_action('init', function() {
         }
     }
 });
-
-add_action('init', function() {
-    $user = get_user_by('login', 'Marcos');
-    if (!$user instanceof WP_User) {
-        return;
-    }
-
-    if ($user->roles !== ['gestor_imoveis']) {
-        $user->set_role('gestor_imoveis');
-    }
-}, 30);
 
 add_action('admin_menu', function() {
     if (!marchon_is_imoveis_manager()) {
@@ -424,7 +420,6 @@ add_action('admin_menu', function() {
 
     remove_menu_page('index.php');
     remove_menu_page('edit.php');
-    remove_menu_page('upload.php');
     remove_menu_page('edit.php?post_type=page');
     remove_menu_page('edit-comments.php');
     remove_menu_page('themes.php');
@@ -510,101 +505,6 @@ add_action('wp_dashboard_setup', function() {
     remove_meta_box('dashboard_recent_comments', 'dashboard', 'normal');
     remove_meta_box('dashboard_incoming_links', 'dashboard', 'normal');
     remove_meta_box('dashboard_plugins', 'dashboard', 'normal');
-});
-
-add_filter('use_block_editor_for_post_type', function(bool $use_block_editor, string $post_type): bool {
-    if ($post_type === 'imoveis' && marchon_is_imoveis_manager()) {
-        return false;
-    }
-
-    return $use_block_editor;
-}, 10, 2);
-
-add_action('add_meta_boxes_imoveis', function() {
-    if (!marchon_is_imoveis_manager()) {
-        return;
-    }
-
-    foreach ([
-        'postexcerpt',
-        'commentstatusdiv',
-        'commentsdiv',
-        'slugdiv',
-        'trackbacksdiv',
-        'revisionsdiv',
-        'authordiv',
-        'pageparentdiv',
-        'formatdiv',
-        'postcustom',
-    ] as $meta_box_id) {
-        remove_meta_box($meta_box_id, 'imoveis', 'normal');
-        remove_meta_box($meta_box_id, 'imoveis', 'side');
-        remove_meta_box($meta_box_id, 'imoveis', 'advanced');
-    }
-}, 99);
-
-add_action('admin_head', function() {
-    if (!marchon_is_imoveis_manager()) {
-        return;
-    }
-
-    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
-    if (!$screen || $screen->post_type !== 'imoveis') {
-        return;
-    }
-    ?>
-    <style>
-        #contextual-help-link-wrap,
-        #screen-options-link-wrap,
-        .editor-post-excerpt,
-        .editor-post-discussion,
-        .editor-post-last-revision {
-            display: none !important;
-        }
-    </style>
-    <?php
-});
-
-add_action('admin_init', function() {
-    if (!marchon_is_imoveis_manager()) {
-        return;
-    }
-
-    if (wp_doing_ajax()) {
-        return;
-    }
-
-    global $pagenow;
-    $allowed_pages = [
-        'admin-ajax.php',
-        'async-upload.php',
-        'media-upload.php',
-        'upload.php',
-    ];
-
-    if (in_array((string) $pagenow, $allowed_pages, true)) {
-        return;
-    }
-
-    $screen = function_exists('get_current_screen') ? get_current_screen() : null;
-    if (!$screen) {
-        return;
-    }
-
-    $allowed_screens = [
-        'edit-imoveis',
-        'imoveis',
-        'media',
-        'media-upload',
-        'upload',
-    ];
-
-    if (in_array($screen->id, $allowed_screens, true)) {
-        return;
-    }
-
-    wp_safe_redirect(admin_url('post-new.php?post_type=imoveis'));
-    exit;
 });
 
 add_filter('login_redirect', function(string $redirect_to, string $requested_redirect_to, WP_User|WP_Error $user): string {
