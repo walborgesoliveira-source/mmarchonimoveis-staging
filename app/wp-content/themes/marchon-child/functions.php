@@ -321,7 +321,7 @@ add_filter('register_post_type_args', function(array $args, string $post_type): 
     $args['capability_type'] = ['imovel', 'imoveis'];
     $args['map_meta_cap']    = true;
     $args['capabilities']    = marchon_get_imoveis_capabilities();
-    $args['supports']        = ['title', 'editor', 'thumbnail'];
+    $args['supports']        = ['title', 'editor', 'thumbnail', 'revisions'];
 
     return $args;
 }, 20, 2);
@@ -333,15 +333,6 @@ add_filter('wp_insert_post_data', function(array $data, array $postarr): array {
 
     if ((defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) || wp_is_post_revision((int) ($postarr['ID'] ?? 0))) {
         return $data;
-    }
-
-    if (in_array($data['post_status'] ?? '', ['draft', 'pending', 'future'], true)) {
-        $title = trim(wp_strip_all_tags((string) ($data['post_title'] ?? '')));
-        $content = trim(wp_strip_all_tags((string) ($data['post_content'] ?? '')));
-
-        if ($title !== '' && $content !== '') {
-            $data['post_status'] = 'publish';
-        }
     }
 
     if (($data['post_status'] ?? '') === 'publish' && mysql2date('U', $data['post_date_gmt'] ?? '') > time()) {
